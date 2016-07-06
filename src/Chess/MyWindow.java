@@ -1,4 +1,4 @@
-package Inflection;
+package Chess;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,10 @@ import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 
-
-public class MyWindow {
+public class MyWindow extends JFrame{
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 	
 	private String destinationIPAddr;
@@ -20,11 +22,11 @@ public class MyWindow {
 	private Socket socket;
 	private PrintWriter writer;
 	private BufferedReader reader;
-	private Board applet1;
+	private ChessBoard applet1;
 	
 	
 	public MyWindow() {
-		applet1 = new Board();
+		applet1 = new ChessBoard();
 		setLayout(null);
 		applet1.init();
 		applet1.start();
@@ -89,5 +91,4 @@ public class MyWindow {
 			}
 		}
 	}
-
 }

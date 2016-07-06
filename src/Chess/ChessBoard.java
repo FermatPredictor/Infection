@@ -1,4 +1,4 @@
-package Inflection;
+package Chess;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +17,7 @@ import ddf.minim.Minim;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-public class Board {
+public class ChessBoard extends PApplet {
 	
 	private static final long serialVersionUID = 1L;
 	private final static int width = 1200, height = 500;
@@ -729,5 +729,5 @@ public class Board {
 			loading();
 	    }
     }
-
+    
 }

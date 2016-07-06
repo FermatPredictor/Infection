@@ -1,9 +1,9 @@
-package Inflection;
+package Chess;
 
 import javax.swing.JFrame;
 
-
-public class Main {
+public class Main{
+	
 	private final static int width = 1200, height = 700;
 	public static void main(String [] args){
 		
