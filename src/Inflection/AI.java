@@ -31,7 +31,6 @@ public class AI {
 	private char[][] setChainBoard; //use in set chain, avoid put the stones in chain repeatly.
 	private char[][] judgeClosedBoard; //judge whether a chain is closed.
 	private float[][] priortyBoard;//decide a considerable point(0~1) 
-	private ArrayList<Chain> chains;
 	
 	public AI(int size, PApplet parent, ChessBoard board){
 		this.parent=parent;
@@ -45,7 +44,6 @@ public class AI {
 		judgeClosedBoard=new char[size+1][size+1];
 		ControlledAreaBoard=new char[size+1][size+1];
 		priortyBoard=new float[size+1][size+1];
-		chains=new ArrayList<Chain>();
 	}
 	
 	private void judgeing(int boardSize, int now_x, int now_y, char c){
@@ -266,7 +264,6 @@ public class AI {
 	    	for(int i=1; i<=size ;i++)
 				for(int j=1; j<=size ;j++)
 					AIBoard[i][j]=0;
-	    	setChains();
 	    	for(int i=1; i<=size ;i++)
 				for(int j=1; j<=size ;j++)
 					if(simulateBoard[i][j]=='n' && !judgeForbiddenPoint(i,j,color) && ControlledAreaBoard[i][j]=='n'){
@@ -377,78 +374,7 @@ public class AI {
 		 }
 	 }
 
-	 public void setChains(){
-		 chains.clear();
-		 for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++){
-					setChainBoard[i][j]=simulateBoard[i][j];
-					judgeClosedBoard[i][j]='n';
-					ControlledAreaBoard[i][j]='n';
-				}
-		 
-		 for(int i=1; i<=size ;i++)
-			for(int j=1; j<=size ;j++){
-				if(simulateBoard[i][j]=='b' && setChainBoard[i][j]!='j'){
-					reset();
-					for(int k=1; k<=size ;k++)
-						for(int l=1; l<=size ;l++){
-							judgeClosedBoard[k][l]='n';
-						}
-					judgeStoneNumInChain=0;
-					judgeFreedomOfChain=0;
-					judgeClosedAreaNumInChain=0;
-					countStonesInChains(i,j,'b');
-					 for(int k=1; k<=size ;k++)
-							for(int l=1; l<=size ;l++){
-								if(judgeClosedBoard[k][l]=='n'){
-									judgeClosedAreaPoints=0;
-									judgeClosedChain(k,l);
-									if(judgeClosedAreaPoints<8){
-										judgeClosedAreaNumInChain++;
-										setControlledAreaInChain(k,l,'b');
-									}
-								}
-							}
-					chains.add(new Chain('b',judgeFreedomOfChain,judgeStoneNumInChain,judgeClosedAreaNumInChain));
-				}
-				else if(simulateBoard[i][j]=='w' && setChainBoard[i][j]!='j'){
-					reset();
-					for(int k=1; k<=size ;k++)
-						for(int l=1; l<=size ;l++){
-							judgeClosedBoard[k][l]='n';
-						}
-					judgeStoneNumInChain=0;
-					judgeFreedomOfChain=0;
-					judgeClosedAreaNumInChain=0;
-					countStonesInChains(i,j,'w');
-					 for(int k=1; k<=size ;k++)
-							for(int l=1; l<=size ;l++){			
-								if(judgeClosedBoard[k][l]=='n'){
-									judgeClosedAreaPoints=0;
-									judgeClosedChain(k,l);
-									if(judgeClosedAreaPoints<8){
-										judgeClosedAreaNumInChain++;
-										setControlledAreaInChain(k,l,'w');
-									}
-								}
-							}
-					chains.add(new Chain('w',judgeFreedomOfChain,judgeStoneNumInChain,judgeClosedAreaNumInChain));
-				}
-			}
-		 
-		 /*for(int i=1; i<=size ;i++){
-			for(int j=1; j<=size ;j++){
-				System.out.print(ControlledAreaBoard[j][i]+" ");
-			}
-			System.out.println("");
-		}
-		 System.out.println("");*/
-		 
-		 /*for(Chain chain: chains){
-				System.out.println(chain.stoneNum+" "+chain.freedom);
-		 }*/
-		 
-	 }
+
 	 
 	 private void copyBoard(){
 			 for(int i=1; i<=size ;i++)
@@ -532,7 +458,6 @@ public class AI {
     	for(int i=1; i<=size ;i++)
 			for(int j=1; j<=size ;j++){
 				copyBoard();
-				setChains();
 				setPriortyBoard(color);
 				if(board.points[i][j]=='n' && !board.judgeForbiddenPoint(i,j,color) && ControlledAreaBoard[i][j]=='n'){
 					for(int k=1; k<=simulateNum ;k++){
@@ -544,7 +469,6 @@ public class AI {
 							x=simulatePoint[0];
 							y=simulatePoint[1];
 							if(x>size || y>size || x<1 || y<1){
-								setChains();
 								if(simpleCount())
 									valueBoard[i][j]++;
 								isEnding=true;
@@ -555,7 +479,6 @@ public class AI {
 							x=simulatePoint[0];
 							y=simulatePoint[1];
 							if(x>size || y>size || x<1 || y<1){
-								setChains();
 								if(simpleCount())
 									valueBoard[i][j]++;
 								isEnding=true;
