@@ -165,10 +165,18 @@ public class ChessBoard extends PApplet{
 		
 		int x=getCoordinate()[0];
 		int y=getCoordinate()[1];
-		if(nowStep%2==1)
-			isAllowPoint=judgeAllowPoint(x,y,'b');
-		else if(nowStep%2==0)
-			isAllowPoint=judgeAllowPoint(x,y,'w');
+		if(nowStep%2==1) {
+			if(!isPrepareJump)
+				isAllowPoint=judgeAllowPoint(x,y,'b');
+			else
+				isAllowPoint=judgeAllowPoint2(x,y);
+		}
+		else if(nowStep%2==0) {
+			if(!isPrepareJump)
+				isAllowPoint=judgeAllowPoint(x,y,'w');
+			else
+				isAllowPoint=judgeAllowPoint2(x,y);
+		}
 		
 		if(x>0 && y>0 && isAllowPoint && points[x][y]=='n'){
 			if(nowStep%2==1){
@@ -282,6 +290,40 @@ public class ChessBoard extends PApplet{
 		 return isAllowPoint;
  
 	 }
+	 
+     public boolean judgeAllowPoint2(int x, int y){
+		 
+		 boolean isAllowPoint=false;
+		 
+		 if(x+2<=size){
+			 if(x+2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 if(x-2>0){
+			 if(x-2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 if(y+2<=size){
+			 if(x==PreparedJumpPoints[0] && y+2==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 if(y-2>0){
+			 if(x==PreparedJumpPoints[0] && y-2==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 
+		 if(x+1<=size && y+1<=size){
+			 if(x+1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 if(x-1>0 && y-1>0){
+			 if(x-1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 if(x+1<=size && y-1>0){
+			 if(x+1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 if(x-1>0 && y+1<=size){
+			 if(x-1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
+		 }
+		 
+		 return isAllowPoint;
+ 
+	 }
 
    
 	//judge in function "draw", if mousePressed, placed the stone.(released then can placed again)
@@ -296,6 +338,32 @@ public class ChessBoard extends PApplet{
 		int x=getCoordinate()[0];
 		int y=getCoordinate()[1];
 		if(x>0 && y>0 && x<=size && y<=size && isPrepareJump){
+			if(nowStep%2==1){
+				infection(x,y,'b');
+				points[x][y]='b';
+				char ch_x=(char)((int)'a'+x-1);
+				char ch_y=(char)((int)'a'+y-1);
+				information=information.concat(";B["+ch_x+ch_y+"]");
+			}
+			else if(nowStep%2==0){
+				infection(x,y,'w');
+				points[x][y]='w';
+				char ch_x=(char)((int)'a'+x-1);
+				char ch_y=(char)((int)'a'+y-1);
+				information=information.concat(";W["+ch_x+ch_y+"]");
+			}
+				nowStep++;
+				effect[0].loop();
+				effect[0].play();
+				
+				try{
+					FileWriter fw = new FileWriter("record.txt");
+					fw.write(information + "\r\n");
+					fw.flush();
+					fw.close();
+					//System.out.println(information);
+				} catch (IOException e) {
+				}
 			isPrepareJump=false;
 		}
 		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]==color && !isPrepareJump){
