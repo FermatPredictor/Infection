@@ -28,6 +28,8 @@ public class ChessBoard extends PApplet{
 	public char[][] points=new char[size+1][size+1]; //b:black; w:white; n:null
 	private boolean canPlaceChess=true;
 	private boolean isAllowPoint=true;
+	private boolean isPrepareJump=false;
+	private int PreparedJumpPoints[]=new int[2];
 	public boolean isClicked = false;
 	private int blackStones=0;
 	private int whiteStones=0;
@@ -139,6 +141,10 @@ public class ChessBoard extends PApplet{
 		for(int i=0; i<=size ; i++){
 			line(chessX,chessY+i*unit,chessX+chessBoardWidth,chessY+i*unit);
 		}
+		if(isPrepareJump){
+			fill(84,153,237);
+			rect(chessX+(float)(PreparedJumpPoints[0]-1)*unit,chessY+(float)(PreparedJumpPoints[1]-1)*unit,unit,unit);
+		}
 		
 		//character for black and white
 		if(nowStep%2==1){
@@ -199,6 +205,7 @@ public class ChessBoard extends PApplet{
 	public void initial(){
 		points[1][1]='b';
 		points[5][5]='w';
+		isPrepareJump=false;
 	}
 	
 	public int[] getCoordinate(){
@@ -279,10 +286,24 @@ public class ChessBoard extends PApplet{
    
 	//judge in function "draw", if mousePressed, placed the stone.(released then can placed again)
     public void placeChess(){
+    	
+    	char color=' ';
+    	if(nowStep%2==1)
+    		color='b';
+    	else if(nowStep%2==0)
+    		color='w';
 
 		int x=getCoordinate()[0];
 		int y=getCoordinate()[1];
-		if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n'){
+		if(x>0 && y>0 && x<=size && y<=size && isPrepareJump){
+			isPrepareJump=false;
+		}
+		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]==color && !isPrepareJump){
+			isPrepareJump=true;
+			PreparedJumpPoints[0]=x;
+			PreparedJumpPoints[1]=y;
+		}
+		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n'){
 			lastMove[0]=x;
 			lastMove[1]=y;
 			if(nowStep%2==1){
@@ -320,6 +341,8 @@ public class ChessBoard extends PApplet{
     private void placeChess(char color, int x, int y){
 
 		if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n'){
+			lastMove[0]=x;
+			lastMove[1]=y;
 			if(color=='b'){
 				infection(x,y,'b');
 				points[x][y]='b';
@@ -423,6 +446,7 @@ public class ChessBoard extends PApplet{
 			}
 			
 			loading();
+			initial();
     	}
     }
     
