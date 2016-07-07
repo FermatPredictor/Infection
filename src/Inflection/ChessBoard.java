@@ -112,7 +112,7 @@ public class ChessBoard extends PApplet{
 			isAITurn=false;
 		}
 		
-		if(mousePressed && canPlaceChess && isAllowPoint && !isAITurn ){
+		if(mousePressed && canPlaceChess && !isAITurn ){
 			placeChess();
 			canPlaceChess=false;
 			isClicked = true;
@@ -295,34 +295,36 @@ public class ChessBoard extends PApplet{
 		 
 		 boolean isAllowPoint=false;
 		 
-		 if(x+2<=size){
-			 if(x+2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 if(x-2>0){
-			 if(x-2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 if(y+2<=size){
-			 if(x==PreparedJumpPoints[0] && y+2==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 if(y-2>0){
-			 if(x==PreparedJumpPoints[0] && y-2==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 
-		 if(x+1<=size && y+1<=size){
-			 if(x+1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 if(x-1>0 && y-1>0){
-			 if(x-1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 if(x+1<=size && y-1>0){
-			 if(x+1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
-		 }
-		 if(x-1>0 && y+1<=size){
-			 if(x-1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
+		 if(points[x][y]=='n'){
+			 if(x+2<=size){
+				 if(x+2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
+			 }
+			 if(x-2>0){
+				 if(x-2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
+			 }
+			 if(y+2<=size){
+				 if(x==PreparedJumpPoints[0] && y+2==PreparedJumpPoints[1])isAllowPoint=true;
+		     }
+			 if(y-2>0){
+				 if(x==PreparedJumpPoints[0] && y-2==PreparedJumpPoints[1])isAllowPoint=true;
+		     }
+			 
+			 if(x+1<=size && y+1<=size){
+				 if(x+1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
+			 }
+			 if(x-1>0 && y-1>0){
+				 if(x-1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
+			 }
+			 if(x+1<=size && y-1>0){
+				 if(x+1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
+			 }
+			 if(x-1>0 && y+1<=size){
+				 if(x-1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
+			 }
 		 }
 		 
 		 return isAllowPoint;
- 
+		 
 	 }
 
    
@@ -338,20 +340,22 @@ public class ChessBoard extends PApplet{
 		int x=getCoordinate()[0];
 		int y=getCoordinate()[1];
 		if(x>0 && y>0 && x<=size && y<=size && isPrepareJump){
-			if(nowStep%2==1){
-				infection(x,y,'b');
-				points[x][y]='b';
-				char ch_x=(char)((int)'a'+x-1);
-				char ch_y=(char)((int)'a'+y-1);
-				information=information.concat(";B["+ch_x+ch_y+"]");
-			}
-			else if(nowStep%2==0){
-				infection(x,y,'w');
-				points[x][y]='w';
-				char ch_x=(char)((int)'a'+x-1);
-				char ch_y=(char)((int)'a'+y-1);
-				information=information.concat(";W["+ch_x+ch_y+"]");
-			}
+			if(isAllowPoint){
+				points[PreparedJumpPoints[0]][PreparedJumpPoints[1]]='n';
+				if(nowStep%2==1){
+					infection(x,y,'b');
+					points[x][y]='b';
+					char ch_x=(char)((int)'a'+x-1);
+					char ch_y=(char)((int)'a'+y-1);
+					information=information.concat(";B["+ch_x+ch_y+"]");
+					}
+				else if(nowStep%2==0){
+					infection(x,y,'w');
+					points[x][y]='w';
+					char ch_x=(char)((int)'a'+x-1);
+					char ch_y=(char)((int)'a'+y-1);
+					information=information.concat(";W["+ch_x+ch_y+"]");
+					}
 				nowStep++;
 				effect[0].loop();
 				effect[0].play();
@@ -364,6 +368,7 @@ public class ChessBoard extends PApplet{
 					//System.out.println(information);
 				} catch (IOException e) {
 				}
+			}
 			isPrepareJump=false;
 		}
 		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]==color && !isPrepareJump){
@@ -371,7 +376,7 @@ public class ChessBoard extends PApplet{
 			PreparedJumpPoints[0]=x;
 			PreparedJumpPoints[1]=y;
 		}
-		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n'){
+		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n' && isAllowPoint){
 			lastMove[0]=x;
 			lastMove[1]=y;
 			if(nowStep%2==1){
