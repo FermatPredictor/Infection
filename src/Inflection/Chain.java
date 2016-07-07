@@ -1,10 +1,7 @@
-package Chess;
-
-import java.util.ArrayList;
-
-//this class is used for AI, which can judge the stone that connected
+package Inflection;
 
 public class Chain {
+	
 	public char color;//b:black, w:white
 	public int safety;//0~64, 0 for dead;
 	public int freedom;//1~4,and if >4, set 5.

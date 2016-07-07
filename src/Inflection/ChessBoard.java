@@ -1,14 +1,11 @@
-package Chess;
+package Inflection;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
-import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import controlP5.ControlP5;
@@ -17,7 +14,7 @@ import ddf.minim.Minim;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-public class ChessBoard extends PApplet {
+public class ChessBoard extends PApplet{
 	
 	private static final long serialVersionUID = 1L;
 	private final static int width = 1200, height = 500;
@@ -729,5 +726,5 @@ public class ChessBoard extends PApplet {
 			loading();
 	    }
     }
-    
+
 }

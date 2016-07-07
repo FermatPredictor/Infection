@@ -1,4 +1,4 @@
-package Chess;
+package Inflection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,9 +12,8 @@ import java.net.UnknownHostException;
 import javax.swing.JFrame;
 
 public class MyWindow extends JFrame{
-	/**
-	 * 
-	 */
+	
+
 	private static final long serialVersionUID = 1L;
 	
 	private String destinationIPAddr;
@@ -91,4 +90,5 @@ public class MyWindow extends JFrame{
 			}
 		}
 	}
+
 }

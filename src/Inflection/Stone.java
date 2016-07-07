@@ -1,4 +1,4 @@
-package Chess;
+package Inflection;
 
 import processing.core.PApplet;
 
@@ -21,6 +21,5 @@ public class Stone {
 		this.parent=parent;
 		this.board=board;
 	}
-	
 
 }

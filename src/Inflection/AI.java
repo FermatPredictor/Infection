@@ -1,4 +1,4 @@
-package Chess;
+package Inflection;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -588,7 +588,5 @@ public class AI {
     	System.out.println("");
     	return point;
     }
-    
-    
 
 }
