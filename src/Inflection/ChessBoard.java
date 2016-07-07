@@ -25,7 +25,7 @@ public class ChessBoard extends PApplet{
 	private int size=5;
 	private float unit=(float)chessBoardWidth/size;
 	private int nowStep=1;
-	public char[][] points=new char[size+1][size+1]; //b:black; w:white; n:null
+	public char[][] points=new char[size+1][size+1]; //b:black; w:white; n:null; j:jump
 	private boolean canPlaceChess=true;
 	private boolean isAllowPoint=true;
 	private boolean isPrepareJump=false;
