@@ -113,7 +113,7 @@ public class ChessBoard extends PApplet{
 		}
 		
 		if(mousePressed && canPlaceChess && !isAITurn ){
-			placeChess();
+			DoAction();
 			canPlaceChess=false;
 			isClicked = true;
 		}
@@ -165,20 +165,19 @@ public class ChessBoard extends PApplet{
 		
 		int x=getCoordinate()[0];
 		int y=getCoordinate()[1];
-		if(nowStep%2==1) {
-			if(!isPrepareJump)
-				isAllowPoint=judgeAllowPoint(x,y,'b');
-			else
-				isAllowPoint=judgeAllowPoint2(x,y);
-		}
-		else if(nowStep%2==0) {
-			if(!isPrepareJump)
-				isAllowPoint=judgeAllowPoint(x,y,'w');
-			else
-				isAllowPoint=judgeAllowPoint2(x,y);
-		}
 		
-		if(x>0 && y>0 && isAllowPoint && points[x][y]=='n'){
+		if(!isPrepareJump){
+			if(nowStep%2==1)
+				isAllowPoint=judgeAllowPoint(x,y,'b');
+			else if(nowStep%2==0)
+				isAllowPoint=judgeAllowPoint(x,y,'w');
+			removeJumpArea();
+		}
+		else
+			setAllowJumpArea(PreparedJumpPoints[0],PreparedJumpPoints[1]);
+
+		
+		if(x>0 && y>0 && isAllowPoint && points[x][y]=='n' && !isPrepareJump){
 			if(nowStep%2==1){
 				fill(0);
 				ellipse((chessX+unit/2)+(getCoordinate()[0]-1)*unit, (chessY+unit/2)+(getCoordinate()[1]-1)*unit,unit*(float)0.8,unit*(float)0.8);
@@ -187,6 +186,15 @@ public class ChessBoard extends PApplet{
 				fill(255);
 				ellipse((chessX+unit/2)+(getCoordinate()[0]-1)*unit, (chessY+unit/2)+(getCoordinate()[1]-1)*unit,unit*(float)0.8,unit*(float)0.8);
 			}
+		}
+		else if(isPrepareJump){
+			 for(int i=1; i<=size ;i++)
+					for(int j=1; j<=size ;j++)
+						if(points[i][j]=='j'){
+							fill(173,34,208);
+							rect(chessX+(float)(i-1)*unit,chessY+(float)(j-1)*unit,unit,unit);
+						}
+							
 		}
 		
 		 for(int i=1; i<=size ;i++)
@@ -214,6 +222,13 @@ public class ChessBoard extends PApplet{
 		points[1][1]='b';
 		points[5][5]='w';
 		isPrepareJump=false;
+	}
+	
+	public void removeJumpArea(){
+		for(int i=1; i<=size ;i++)
+			for(int j=1; j<=size ;j++)
+				if(points[i][j]=='j')
+					points[i][j]='n';
 	}
 	
 	public int[] getCoordinate(){
@@ -291,45 +306,43 @@ public class ChessBoard extends PApplet{
  
 	 }
 	 
-     public boolean judgeAllowPoint2(int x, int y){
+     
+     private void setAllowJumpArea(int x, int y){
 		 
-		 boolean isAllowPoint=false;
-		 
-		 if(points[x][y]=='n'){
-			 if(x+2<=size){
-				 if(x+2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
-			 }
-			 if(x-2>0){
-				 if(x-2==PreparedJumpPoints[0] && y==PreparedJumpPoints[1])isAllowPoint=true;
-			 }
-			 if(y+2<=size){
-				 if(x==PreparedJumpPoints[0] && y+2==PreparedJumpPoints[1])isAllowPoint=true;
-		     }
-			 if(y-2>0){
-				 if(x==PreparedJumpPoints[0] && y-2==PreparedJumpPoints[1])isAllowPoint=true;
-		     }
+		
+		 if(x+2<=size){
+			 if(points[x+2][y]=='n')points[x+2][y]='j';
+		 }
+		 if(x-2>0){
+			 if(points[x-2][y]=='n')points[x-2][y]='j';
+		 }
+		 if(y+2<=size){
+			 if(points[x][y+2]=='n')points[x][y+2]='j';
+		 }
+		 if(y-2>0){
+			 if(points[x][y-2]=='n')points[x][y-2]='j';
+		 }
 			 
-			 if(x+1<=size && y+1<=size){
-				 if(x+1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
-			 }
-			 if(x-1>0 && y-1>0){
-				 if(x-1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
-			 }
-			 if(x+1<=size && y-1>0){
-				 if(x+1==PreparedJumpPoints[0] && y-1==PreparedJumpPoints[1])isAllowPoint=true;
-			 }
-			 if(x-1>0 && y+1<=size){
-				 if(x-1==PreparedJumpPoints[0] && y+1==PreparedJumpPoints[1])isAllowPoint=true;
-			 }
+	     if(x+1<=size && y+1<=size){
+			 if(points[x+1][y+1]=='n')points[x+1][y+1]='j';
+	     }
+		 if(x-1>0 && y-1>0){
+			 if(points[x-1][y-1]=='n')points[x-1][y-1]='j';
+		 }
+		 if(x+1<=size && y-1>0){
+			 if(points[x+1][y-1]=='n')points[x+1][y-1]='j';
+		 }
+		 if(x-1>0 && y+1<=size){
+			 if(points[x-1][y+1]=='n')points[x-1][y+1]='j';
 		 }
 		 
-		 return isAllowPoint;
 		 
-	 }
+     }
+     
 
    
-	//judge in function "draw", if mousePressed, placed the stone.(released then can placed again)
-    public void placeChess(){
+	//judge in function "draw", if mousePressed, placed or move the stone.(released then can placed again)
+    public void DoAction(){
     	
     	char color=' ';
     	if(nowStep%2==1)
@@ -340,21 +353,27 @@ public class ChessBoard extends PApplet{
 		int x=getCoordinate()[0];
 		int y=getCoordinate()[1];
 		if(x>0 && y>0 && x<=size && y<=size && isPrepareJump){
-			if(isAllowPoint){
+			if(points[x][y]=='j'){
+				lastMove[0]=x;
+				lastMove[1]=y;
 				points[PreparedJumpPoints[0]][PreparedJumpPoints[1]]='n';
 				if(nowStep%2==1){
 					infection(x,y,'b');
 					points[x][y]='b';
 					char ch_x=(char)((int)'a'+x-1);
 					char ch_y=(char)((int)'a'+y-1);
-					information=information.concat(";B["+ch_x+ch_y+"]");
+					char ch_rx=(char)((int)'a'+PreparedJumpPoints[0]-1);
+					char ch_ry=(char)((int)'a'+PreparedJumpPoints[1]-1);
+					information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
 					}
 				else if(nowStep%2==0){
 					infection(x,y,'w');
 					points[x][y]='w';
 					char ch_x=(char)((int)'a'+x-1);
 					char ch_y=(char)((int)'a'+y-1);
-					information=information.concat(";W["+ch_x+ch_y+"]");
+					char ch_rx=(char)((int)'a'+PreparedJumpPoints[0]-1);
+					char ch_ry=(char)((int)'a'+PreparedJumpPoints[1]-1);
+					information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
 					}
 				nowStep++;
 				effect[0].loop();
@@ -384,14 +403,20 @@ public class ChessBoard extends PApplet{
 				points[x][y]='b';
 				char ch_x=(char)((int)'a'+x-1);
 				char ch_y=(char)((int)'a'+y-1);
-				information=information.concat(";B["+ch_x+ch_y+"]");
+				//add the information that imply does not remove stone
+				char ch_rx=(char)((int)'a'+size);
+				char ch_ry=(char)((int)'a'+size);
+				information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
 			}
 			else if(nowStep%2==0){
 				infection(x,y,'w');
 				points[x][y]='w';
 				char ch_x=(char)((int)'a'+x-1);
 				char ch_y=(char)((int)'a'+y-1);
-				information=information.concat(";W["+ch_x+ch_y+"]");
+				//add the information that imply does not remove stone
+				char ch_rx=(char)((int)'a'+size);
+				char ch_ry=(char)((int)'a'+size);
+				information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
 			}
 				nowStep++;
 				effect[0].loop();
@@ -429,6 +454,14 @@ public class ChessBoard extends PApplet{
 		nowStep++;	
    }
     
+	//use in the function "loading"
+    private void Remove(int x, int y){
+
+		if(x>0 && y>0 && x<=size && y<=size)
+			points[x][y]='n';
+		
+   }
+    
     //load the record, and place chess from the first step to the last.
     private void loading(){
     	
@@ -443,8 +476,12 @@ public class ChessBoard extends PApplet{
     	//System.out.println(begin);
     	if(begin!=-1)
     		while(begin<information.length()){
-    			int x=information.charAt(begin+3)-'a'+1;
-    			int y=information.charAt(begin+4)-'a'+1;
+    			int rx=information.charAt(begin+3)-'a'+1;
+    			int ry=information.charAt(begin+4)-'a'+1;
+    			Remove(rx,ry);
+    			
+    			int x=information.charAt(begin+8)-'a'+1;
+    			int y=information.charAt(begin+9)-'a'+1;
     			if(nowStep%2==1){
     				placeChess('b',x,y);
     			}
@@ -452,7 +489,7 @@ public class ChessBoard extends PApplet{
     				placeChess('w',x,y);
     			}
     			//System.out.println(x+" "+y);
-    			begin+=6;
+    			begin+=11;
     		}
     	//System.out.println(nowStep);
     }
@@ -508,7 +545,7 @@ public class ChessBoard extends PApplet{
     //button
     public void undo(){
     	if(nowStep>1){
-    		information=information.substring(0,information.length()-6);
+    		information=information.substring(0,information.length()-11);
 			try{
 				FileWriter fw = new FileWriter("record.txt");
 				fw.write(information + "\r\n");
