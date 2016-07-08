@@ -81,8 +81,8 @@ public class ChessBoard extends PApplet{
         blackCat2.resize(200, 150);
 		ai=new AI(size,this,this);
 		
-		loading();
 		initial();
+		loading();
 		
 		//button
 		cp5.addButton("undo").setLabel("Undo")		
@@ -101,21 +101,23 @@ public class ChessBoard extends PApplet{
 	
 	public void draw() 
 	{   
-		if(isWhiteAIOn && nowStep%2==0){
-			isAITurn=true;
-			placeChessForAI('w');
-			isAITurn=false;
-		}
-		else if(isBlackAIOn && nowStep%2==1){
-			isAITurn=true;
-			placeChessForAI('b');
-			isAITurn=false;
-		}
 		
-		if(mousePressed && canPlaceChess && !isAITurn ){
-			DoAction();
-			canPlaceChess=false;
-			isClicked = true;
+		if(!isEnding){
+			if(isWhiteAIOn && nowStep%2==0){
+				isAITurn=true;
+				placeChessForAI('w');
+				isAITurn=false;
+			}
+			else if(isBlackAIOn && nowStep%2==1){
+				isAITurn=true;
+				placeChessForAI('b');
+				isAITurn=false;
+			}
+			if(mousePressed && canPlaceChess && !isAITurn ){
+				DoAction();
+				canPlaceChess=false;
+				isClicked = true;
+			}
 		}
 		
 		
@@ -130,6 +132,9 @@ public class ChessBoard extends PApplet{
 					whiteStones++;
 					
 			}
+		
+		 if(!isEnding && !isPrepareJump)
+			 CheckEnding();
 		
 		background(52,203,41);
 		fill(168,134,87);
@@ -212,16 +217,116 @@ public class ChessBoard extends PApplet{
 							image(white,(chessX+unit/2)+(i-1)*unit-unit/2, (chessY+unit/2)+(j-1)*unit-unit/2);
 					}
 				}
-			
-		if(isEnding)
-			System.exit(0);
-		
+
 	}
 	
 	public void initial(){
+		
+	    blackStones=0;
+	    whiteStones=0;
+	    for(int i=1; i<=size ;i++)
+	    	for(int j=1; j<=size ;j++)
+	    		points[i][j]='n';
 		points[1][1]='b';
 		points[5][5]='w';
+		isEnding=false;
 		isPrepareJump=false;
+	}
+	
+	private void CheckEnding(){
+
+		boolean canMove=false;
+		boolean isFullBoard=true;
+		int winPoints;
+		char c=' ';
+		if(nowStep%2==1)c='b';
+		else if(nowStep%2==0)c='w';
+		
+		if(blackStones==0){
+    		JOptionPane.showMessageDialog(null,"White infect all black stones.");
+    		isEnding=true;
+    	}
+		else if(whiteStones==0){
+    		JOptionPane.showMessageDialog(null,"Black infect all white stones.");
+    		isEnding=true;
+    	}	
+		
+		for(int i=1; i<=size ;i++)
+			for(int j=1; j<=size ;j++)
+				if(points[i][j]=='n')
+					isFullBoard=false;
+		
+		if(isFullBoard){
+			winPoints=abs(blackStones-whiteStones);
+			if(blackStones==whiteStones)
+				JOptionPane.showMessageDialog(null,"draw.");
+			else if(blackStones>whiteStones)
+				JOptionPane.showMessageDialog(null,"Black win "+winPoints+" points");
+			else if(blackStones<whiteStones)
+				JOptionPane.showMessageDialog(null,"White win "+winPoints+" points");
+			isEnding=true;
+		}
+		else if(!isEnding){
+			for(int i=1; i<=size ;i++)
+				 for(int j=1; j<=size ;j++)
+					 if(points[i][j]=='n' && !canMove){
+						 if(i+1<=size){
+							 if(points[i+1][j]==c)canMove=true;
+						 }
+			    		 if(i-1>0){
+			    			 if(points[i-1][j]==c)canMove=true;
+			    		 }
+			    		 if(j+1<=size){
+			    			 if(points[i][j+1]==c)canMove=true;
+			    		 }
+			    		 if(j-1>0){
+			    			 if(points[i][j-1]==c)canMove=true;
+			    		 }
+			    		 
+			    		 if(i+2<=size){
+			    			 if(points[i+2][j]==c)canMove=true;
+			    		 }
+			    		 if(i-2>0){
+			    			 if(points[i-2][j]==c)canMove=true;
+			    		 }
+			    		 if(j+2<=size){
+			    			 if(points[i][j+2]==c)canMove=true;
+			    		 }
+			    		 if(j-2>0){
+			    			 if(points[i][j-2]==c)canMove=true;
+			    		 }
+			    			 
+			    	     if(i+1<=size && j+1<=size){
+			    			 if(points[i+1][j+1]==c)canMove=true;
+			    	     }
+			    		 if(i-1>0 && j-1>0){
+			    			 if(points[i-1][j-1]==c)canMove=true;
+			    		 }
+			    		 if(i+1<=size && j-1>0){
+			    			 if(points[i+1][j-1]==c)canMove=true;
+			    		 }
+			    		 if(i-1>0 && j+1<=size){
+			    			 if(points[i-1][j+1]==c)canMove=true;
+			    		 }
+			   };
+			   if(!canMove){
+					
+					//add the information that imply pass
+		    		char ch_x=(char)((int)'a'+size);
+					char ch_y=(char)((int)'a'+size);
+					char ch_rx=(char)((int)'a'+size);
+					char ch_ry=(char)((int)'a'+size);
+					
+					if(nowStep%2==1){
+						information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
+			    	}
+					else if(nowStep%2==0){
+			    		information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
+			    	}
+					
+					nowStep++;
+				}
+		}
 	}
 	
 	public void removeJumpArea(){
@@ -466,11 +571,6 @@ public class ChessBoard extends PApplet{
     private void loading(){
     	
     	nowStep=1;
-        blackStones=0;
-        whiteStones=0;
-		for(int i=1; i<=size ;i++)
-			for(int j=1; j<=size ;j++)
-				points[i][j]='n';
 		
     	int begin=information.indexOf(';',1);
     	//System.out.println(begin);
@@ -545,7 +645,13 @@ public class ChessBoard extends PApplet{
     //button
     public void undo(){
     	if(nowStep>1){
-    		information=information.substring(0,information.length()-11);
+    		char autoPassInfor=(char)((int)'a'+size);
+    		int len=information.length();
+    		if(information.charAt(len-2)==autoPassInfor && information.charAt(len-3)==autoPassInfor
+    		   && information.charAt(len-7)==autoPassInfor && information.charAt(len-8)==autoPassInfor)
+    			information=information.substring(0,len-22);
+    		else information=information.substring(0,len-11);
+
 			try{
 				FileWriter fw = new FileWriter("record.txt");
 				fw.write(information + "\r\n");
@@ -555,8 +661,9 @@ public class ChessBoard extends PApplet{
 			} catch (IOException e) {
 			}
 			
-			loading();
 			initial();
+			loading();
+
     	}
     }
     
@@ -585,8 +692,8 @@ public class ChessBoard extends PApplet{
 				fw.close();
 			} catch (IOException e) {
 			}
-			loading();
 			initial();
+			loading();
 	    }
     }
 
