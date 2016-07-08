@@ -34,7 +34,7 @@ public class ChessBoard extends PApplet{
 	private int blackStones=0;
 	private int whiteStones=0;
 	String information="";
-	private boolean isWhiteAIOn=false;
+	private boolean isWhiteAIOn=true;
 	private boolean isBlackAIOn=false;
 	private boolean isAITurn=false;
 	private boolean isEnding=false;
@@ -590,6 +590,8 @@ public class ChessBoard extends PApplet{
 		if(rx>0 && ry>0 && rx<=size && ry<=size)
 			points[rx][ry]='n';
 		if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n'){
+			lastMove[0]=x;
+			lastMove[1]=y;
 			points[x][y]=color;
 			infection(x,y,color);
 		}
