@@ -105,12 +105,12 @@ public class ChessBoard extends PApplet{
 		if(!isEnding){
 			if(isWhiteAIOn && nowStep%2==0){
 				isAITurn=true;
-				placeChessForAI('w');
+				DoActionForAI('w');
 				isAITurn=false;
 			}
 			else if(isBlackAIOn && nowStep%2==1){
 				isAITurn=true;
-				placeChessForAI('b');
+				DoActionForAI('b');
 				isAITurn=false;
 			}
 			if(mousePressed && canPlaceChess && !isAITurn ){
@@ -462,24 +462,16 @@ public class ChessBoard extends PApplet{
 				lastMove[0]=x;
 				lastMove[1]=y;
 				points[PreparedJumpPoints[0]][PreparedJumpPoints[1]]='n';
-				if(nowStep%2==1){
-					infection(x,y,'b');
-					points[x][y]='b';
-					char ch_x=(char)((int)'a'+x-1);
-					char ch_y=(char)((int)'a'+y-1);
-					char ch_rx=(char)((int)'a'+PreparedJumpPoints[0]-1);
-					char ch_ry=(char)((int)'a'+PreparedJumpPoints[1]-1);
+				infection(x,y,color);
+				points[x][y]=color;
+				char ch_x=(char)((int)'a'+x-1);
+				char ch_y=(char)((int)'a'+y-1);
+				char ch_rx=(char)((int)'a'+PreparedJumpPoints[0]-1);
+				char ch_ry=(char)((int)'a'+PreparedJumpPoints[1]-1);
+				if(nowStep%2==1)
 					information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
-					}
-				else if(nowStep%2==0){
-					infection(x,y,'w');
-					points[x][y]='w';
-					char ch_x=(char)((int)'a'+x-1);
-					char ch_y=(char)((int)'a'+y-1);
-					char ch_rx=(char)((int)'a'+PreparedJumpPoints[0]-1);
-					char ch_ry=(char)((int)'a'+PreparedJumpPoints[1]-1);
+				else if(nowStep%2==0)
 					information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
-					}
 				nowStep++;
 				effect[0].loop();
 				effect[0].play();
@@ -503,29 +495,20 @@ public class ChessBoard extends PApplet{
 		else if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n' && isAllowPoint){
 			lastMove[0]=x;
 			lastMove[1]=y;
-			if(nowStep%2==1){
-				infection(x,y,'b');
-				points[x][y]='b';
-				char ch_x=(char)((int)'a'+x-1);
-				char ch_y=(char)((int)'a'+y-1);
-				//add the information that imply does not remove stone
-				char ch_rx=(char)((int)'a'+size);
-				char ch_ry=(char)((int)'a'+size);
+			infection(x,y,color);
+			points[x][y]=color;
+			char ch_x=(char)((int)'a'+x-1);
+			char ch_y=(char)((int)'a'+y-1);
+			//add the information that imply does not remove stone
+			char ch_rx=(char)((int)'a'+size);
+			char ch_ry=(char)((int)'a'+size);
+			if(nowStep%2==1)
 				information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
-			}
-			else if(nowStep%2==0){
-				infection(x,y,'w');
-				points[x][y]='w';
-				char ch_x=(char)((int)'a'+x-1);
-				char ch_y=(char)((int)'a'+y-1);
-				//add the information that imply does not remove stone
-				char ch_rx=(char)((int)'a'+size);
-				char ch_ry=(char)((int)'a'+size);
+			else if(nowStep%2==0)
 				information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
-			}
-				nowStep++;
-				effect[0].loop();
-				effect[0].play();
+			nowStep++;
+			effect[0].loop();
+			effect[0].play();
 				
 				try{
 					FileWriter fw = new FileWriter("record.txt");
@@ -596,44 +579,38 @@ public class ChessBoard extends PApplet{
     
    
     
-    private void placeChessForAI(char color){
-    	int point[]=new int[2];
+    private void DoActionForAI(char color){
+    	
+    	int point[]=new int[4];
     	point=ai.AIaction(color);
-		int x=point[0];
-		int y=point[1];
+    	int rx=point[0];
+		int ry=point[1];
+    	int x=point[2];
+		int y=point[3];
+		if(rx>0 && ry>0 && rx<=size && ry<=size)
+			points[rx][ry]='n';
 		if(x>0 && y>0 && x<=size && y<=size && points[x][y]=='n'){
-			if(nowStep%2==1){
-				infection(x,y,'b');
-				points[x][y]='b';
-				char ch_x=(char)((int)'a'+x-1);
-				char ch_y=(char)((int)'a'+y-1);
-				information=information.concat(";B["+ch_x+ch_y+"]");
-			}
-			else if(nowStep%2==0){
-				infection(x,y,'w');
-				points[x][y]='w';
-				char ch_x=(char)((int)'a'+x-1);
-				char ch_y=(char)((int)'a'+y-1);
-				information=information.concat(";W["+ch_x+ch_y+"]");
-			}
-				nowStep++;
-				effect[0].loop();
-				effect[0].play();
-				
-				try{
-					FileWriter fw = new FileWriter("record.txt");
-					fw.write(information + "\r\n");
-					fw.flush();
-					fw.close();
-					//System.out.println(information);
-				} catch (IOException e) {
-				}
+			points[x][y]=color;
+			infection(x,y,color);
 		}
-		else{
-			if(color=='b')
-				isBlackAIOn=false;
-			else if(color=='w')
-				isWhiteAIOn=false;
+		char ch_x=(char)((int)'a'+x-1);
+		char ch_y=(char)((int)'a'+y-1);
+		char ch_rx=(char)((int)'a'+rx-1);
+		char ch_ry=(char)((int)'a'+ry-1);
+		if(nowStep%2==1)
+			information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
+		else if(nowStep%2==0)
+			information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
+		nowStep++;
+		effect[0].loop();
+		effect[0].play();
+		try{
+			FileWriter fw = new FileWriter("record.txt");
+			fw.write(information + "\r\n");
+			fw.flush();
+			fw.close();
+			//System.out.println(information);
+		} catch (IOException e) {
 		}
 		
    }
