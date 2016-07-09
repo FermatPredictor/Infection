@@ -12,19 +12,18 @@ public class AI {
 	protected PApplet parent;
 	protected ChessBoard board;
 	int size;
-	private int simulateNum=50;
-	private int simulateStepNum=12;
-	
-	//some information that we can use
-	private int[][] valueBoard;//the number of win times while ai simulate games many times 
+	private boolean isFullBoard=true;
+	private int simulateNum=500;
+	private int simulateStepNum=10;
 	
 	private int[][] AIBoard;//used in simulate, noted the points that ai can choose.
 	private int[][] randomJumpBoard;
 	private int[][] chooseBoard;//noted the point that ai can choose, 0:initial, 1:breed, 2:jump
 	private int[][] allowedMove;
-	private int[] allowedMoveValue;
+	private int[] allowedMoveValue;//the number of win times while ai simulate games many times 
 	private int allowedMoveNum=0;
 	private char[][] simulateBoard; //b:black; w:white; n:null
+	
 
 
 	public AI(int size, PApplet parent, ChessBoard board){
@@ -37,7 +36,6 @@ public class AI {
 		allowedMove=new int[30][4];
 		allowedMoveValue=new int[30];
 		simulateBoard=new char[size+1][size+1];
-		valueBoard=new int[size+1][size+1];
 	}
 	 
 	 
@@ -143,7 +141,7 @@ public class AI {
 	 	private boolean simulateCheckEnding(char c){
 
 			boolean canMove=false;
-			boolean isFullBoard=true;
+			isFullBoard=true;
 			int blackStones=0;
 			int whiteStones=0;
 
@@ -282,13 +280,17 @@ public class AI {
 			 
 			 for(int i=1; i<=size ;i++)
 					for(int j=1; j<=size ;j++){
-						int distance=Math.abs(i-x)+Math.abs(j-y);
-						if(distance==2 && simulateBoard[i][j]==c){
-							canJump=true;
-						if(Math.abs(i-x)<=1 && Math.abs(j-y)<=1 && simulateBoard[i][j]==d){
+						if(Math.abs(i-x)<=1 && Math.abs(j-y)<=1 && simulateBoard[i][j]==d)
 							valueJump=true;
-						}
-					}
+			 }
+			 
+			 if(valueJump){
+				 for(int i=1; i<=size ;i++)
+						for(int j=1; j<=size ;j++){
+							int distance=Math.abs(i-x)+Math.abs(j-y);
+							if(distance==2 && simulateBoard[i][j]==c)
+								canJump=true;
+				 }
 			 }
 			 
 			 if(canJump && valueJump)
@@ -304,11 +306,13 @@ public class AI {
 		 
 		 if(simulateBoard[x][y]=='n'){
 			 
+			 boolean set=false;
 			 for(int i=1; i<=size ;i++)
 					for(int j=1; j<=size ;j++){
 						int distance=Math.abs(i-x)+Math.abs(j-y);
-						if(distance==1 && simulateBoard[i][j]==c){
+						if(distance==1 && simulateBoard[i][j]==c && !set){
 							setAllowedMove(size+1,size+1,x,y);
+							set=true;
 						}
 					}
 			 boolean valueJump=false;
@@ -401,6 +405,11 @@ public class AI {
 						if(isEnding || k==simulateStepNum){
 							if(simpleCount(color))
 								allowedMoveValue[i]++;
+							if(!isFullBoard){
+								if(k==1)
+									allowedMoveValue[i]+=simulateNum;
+								else if(k==2)allowedMoveValue[i]-=simulateNum;
+							}
 							break;
 						}
 						if(k%2==1)
@@ -427,12 +436,13 @@ public class AI {
 		
 		for(int i=0; i<allowedMoveNum ;i++){
 				if(allowedMoveValue[i]>allowedMoveValue[choose]){
+					choose=i;
 					point[0]=allowedMove[i][0];
 					point[1]=allowedMove[i][1];
 					point[2]=allowedMove[i][2];
 					point[3]=allowedMove[i][3];
 				}
-				System.out.println(allowedMove[i][0]+" "+allowedMove[i][1]+" "+allowedMove[i][2]+" "+allowedMove[i][3]+" "+allowedMoveValue[i]);
+				System.out.println(i+" "+allowedMove[i][0]+" "+allowedMove[i][1]+" "+allowedMove[i][2]+" "+allowedMove[i][3]+" "+allowedMoveValue[i]);
 			}
 		System.out.println("");
 

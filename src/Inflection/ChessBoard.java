@@ -227,8 +227,8 @@ public class ChessBoard extends PApplet{
 	    for(int i=1; i<=size ;i++)
 	    	for(int j=1; j<=size ;j++)
 	    		points[i][j]='n';
-		points[1][1]='b';
-		points[5][5]='w';
+	    points[1][1]='b';
+	    points[size][size]='w';
 		isEnding=false;
 		isPrepareJump=false;
 	}
