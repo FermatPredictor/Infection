@@ -13,6 +13,9 @@ public class AI {
 	protected ChessBoard board;
 	int size;
 	private boolean isFullBoard=true;
+	private boolean isNearFullBoard=true;//def: if stones>0.8 board, then true.
+	private boolean canMove=true;
+	private char cannotMoveColor=' ';
 	private int simulateNum=500;
 	private int simulateStepNum=10;
 	
@@ -140,10 +143,22 @@ public class AI {
         //true for ending
 	 	private boolean simulateCheckEnding(char c){
 
-			boolean canMove=false;
+			
 			isFullBoard=true;
+			isNearFullBoard=true;
 			int blackStones=0;
 			int whiteStones=0;
+			int nullPointNum=0;
+			
+			for(int i=1; i<=size ;i++)
+				for(int j=1; j<=size ;j++)
+					if(simulateBoard[i][j]=='n'){
+						nullPointNum++;
+						isFullBoard=false;
+					}
+			
+			if(nullPointNum >= size*size/5)
+				isNearFullBoard=false;
 
 			for(int i=1; i<=size ;i++)
 				for(int j=1; j<=size ;j++){
@@ -156,16 +171,12 @@ public class AI {
 			if(blackStones==0 || whiteStones==0){
 	    		return true;
 	    	}
-
-			for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++)
-					if(simulateBoard[i][j]=='n')
-						isFullBoard=false;
 			
 			if(isFullBoard){
 				return true;
 			}
 			else {
+				canMove=false;
 				for(int i=1; i<=size ;i++)
 					 for(int j=1; j<=size ;j++)
 						 if(simulateBoard[i][j]=='n' && !canMove){
@@ -208,8 +219,11 @@ public class AI {
 				    			 if(simulateBoard[i-1][j+1]==c)canMove=true;
 				    		 }
 				   }
-				if(!canMove)
+				
+				if(!canMove){
+					cannotMoveColor=c;
 					return true;
+				}
 				else
 					return false;
 			}
@@ -219,6 +233,18 @@ public class AI {
 	 private boolean simpleCount(char c){
 		 int blackStones=0;
 		 int whiteStones=0;
+		 
+		 char d=' ';
+		 if(cannotMoveColor=='b')d='w';
+		 else if(cannotMoveColor=='w')d='b';
+		 
+		 if(!canMove){
+			 for(int i=1; i<=size ;i++)
+				for(int j=1; j<=size ;j++)
+					if(simulateBoard[i][j]=='n')
+						simulateBoard[i][j]=d;
+		 }
+		 
 		 for(int i=1; i<=size ;i++)
 				for(int j=1; j<=size ;j++){
 					if(simulateBoard[i][j]=='b')
@@ -406,6 +432,11 @@ public class AI {
 							if(simpleCount(color))
 								allowedMoveValue[i]++;
 							if(!isFullBoard){
+								if(k==1)
+									allowedMoveValue[i]+=simulateNum;
+								else if(k==2)allowedMoveValue[i]-=simulateNum;
+							}
+							if(!isNearFullBoard && !canMove){
 								if(k==1)
 									allowedMoveValue[i]+=simulateNum;
 								else if(k==2)allowedMoveValue[i]-=simulateNum;
