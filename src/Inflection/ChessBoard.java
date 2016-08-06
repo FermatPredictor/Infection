@@ -1,6 +1,7 @@
 package Inflection;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,15 +35,21 @@ public class ChessBoard extends PApplet{
 	private int blackStones=0;
 	private int whiteStones=0;
 	String information="";
-	private boolean isWhiteAIOn=true;
+	String symmetryinformation="";
+	private boolean isWhiteAIOn=false;
 	private boolean isBlackAIOn=false;
 	private boolean isAITurn=false;
 	private boolean isEnding=false;
 	private Minim minim;
 	private AudioPlayer song;
 	private AudioPlayer effect[]=new AudioPlayer[10];
-	private AI ai;
+	private AlphaCat ai;
 	public int lastMove[]=new int[2];
+	
+	String record[];
+	private boolean recording=true;
+	ArrayList<String> recordList = new ArrayList<String>();
+	private char winner;//b:black, w:white, d:draw
 	
 	public ChessBoard() {
 		try {
@@ -79,7 +86,7 @@ public class ChessBoard extends PApplet{
         blackCat1.resize(200, 150);
         whiteCat2.resize(200, 150);
         blackCat2.resize(200, 150);
-		ai=new AI(size,this,this);
+		ai=new AlphaCat(size,this,this);
 		
 		initial();
 		loading();
@@ -89,7 +96,13 @@ public class ChessBoard extends PApplet{
                              .setPosition(700,50)
                              .setSize(100, 50);
 		cp5.addButton("resign").setLabel("Resign")
-                               .setPosition(920,50)
+                               .setPosition(810,50)
+                               .setSize(100, 50);
+		cp5.addButton("blackCatOn").setLabel("Black Cat")
+		                       .setPosition(920,50)
+                               .setSize(100, 50);
+		cp5.addButton("whiteCatOn").setLabel("White Cat")
+                               .setPosition(1030,50)
                                .setSize(100, 50);
 		cp5.addButton("newGame").setLabel("NewGame")
                                 .setPosition(700,120)
@@ -133,8 +146,16 @@ public class ChessBoard extends PApplet{
 					
 			}
 		
-		 if(!isEnding && !isPrepareJump)
+		 if(!isEnding && !isPrepareJump){
+			 removeJumpArea();
 			 CheckEnding();
+			 CheckDraw();
+		 }
+		
+		 /*if(isEnding && size==5 && recording){
+			 RecordEndingGame();
+			 recording=false;
+		 }*/
 		
 		background(52,203,41);
 		fill(168,134,87);
@@ -233,6 +254,32 @@ public class ChessBoard extends PApplet{
 		isPrepareJump=false;
 	}
 	
+	//check whether the cycle cause draw
+	private void CheckDraw(){
+		
+		int begin=information.indexOf(';',1);
+		int unit=11;//a one step record
+		int len=information.length();
+		if(len>1){
+			String s=information.substring(begin);
+			String halfStr;
+			int stepNum=s.length()/unit;
+			if(stepNum%2==1)
+				begin+=unit;
+			
+			while(begin<len){
+				s=information.substring(begin);
+				halfStr=s.substring(s.length()/2);
+				if(s.startsWith(halfStr)){
+					System.out.println("cycle");
+					break;
+				}
+				begin+=2*unit;
+			}
+		}
+		
+	}
+	
 	private void CheckEnding(){
 
 		boolean canMove=false;
@@ -245,10 +292,12 @@ public class ChessBoard extends PApplet{
 		if(blackStones==0){
     		JOptionPane.showMessageDialog(null,"White infect all black stones.");
     		isEnding=true;
+    		winner='w';
     	}
 		else if(whiteStones==0){
     		JOptionPane.showMessageDialog(null,"Black infect all white stones.");
     		isEnding=true;
+    		winner='b';
     	}	
 		
 		for(int i=1; i<=size ;i++)
@@ -258,12 +307,18 @@ public class ChessBoard extends PApplet{
 		
 		if(isFullBoard){
 			winPoints=abs(blackStones-whiteStones);
-			if(blackStones==whiteStones)
+			if(blackStones==whiteStones){
 				JOptionPane.showMessageDialog(null,"draw.");
-			else if(blackStones>whiteStones)
+				winner='d';
+			}
+			else if(blackStones>whiteStones){
 				JOptionPane.showMessageDialog(null,"Black win "+winPoints+" points");
-			else if(blackStones<whiteStones)
+				winner='b';
+			}
+			else if(blackStones<whiteStones){
 				JOptionPane.showMessageDialog(null,"White win "+winPoints+" points");
+				winner='w';
+			}
 			isEnding=true;
 		}
 		else if(!isEnding){
@@ -581,6 +636,7 @@ public class ChessBoard extends PApplet{
     
     private void DoActionForAI(char color){
     	
+    	boolean wantResign=true;
     	int point[]=new int[4];
     	point=ai.AIaction(color);
     	int rx=point[0];
@@ -594,25 +650,32 @@ public class ChessBoard extends PApplet{
 			lastMove[1]=y;
 			points[x][y]=color;
 			infection(x,y,color);
+			wantResign=false;
 		}
-		char ch_x=(char)((int)'a'+x-1);
-		char ch_y=(char)((int)'a'+y-1);
-		char ch_rx=(char)((int)'a'+rx-1);
-		char ch_ry=(char)((int)'a'+ry-1);
-		if(nowStep%2==1)
-			information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
-		else if(nowStep%2==0)
-			information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
-		nowStep++;
-		effect[0].loop();
-		effect[0].play();
-		try{
-			FileWriter fw = new FileWriter("record.txt");
-			fw.write(information + "\r\n");
-			fw.flush();
-			fw.close();
-			//System.out.println(information);
-		} catch (IOException e) {
+		else
+			resign();
+		
+		if(!wantResign){
+			char ch_x=(char)((int)'a'+x-1);
+			char ch_y=(char)((int)'a'+y-1);
+			char ch_rx=(char)((int)'a'+rx-1);
+			char ch_ry=(char)((int)'a'+ry-1);
+			if(nowStep%2==1)
+				information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
+			else if(nowStep%2==0)
+				information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
+			nowStep++;
+			effect[0].loop();
+			effect[0].play();
+			try{
+				FileWriter fw = new FileWriter("record.txt");
+				fw.write(information + "\r\n");
+				fw.flush();
+				fw.close();
+				//System.out.println(information);
+			} catch (IOException e) {
+			}
+
 		}
 		
    }
@@ -650,16 +713,100 @@ public class ChessBoard extends PApplet{
     public void resign(){
     	if(nowStep%2==1){
     		JOptionPane.showMessageDialog(null,"White win by resignation.");
+    		winner='w';
     		isEnding=true;
     	}
     	else if(nowStep%2==0){
     		JOptionPane.showMessageDialog(null,"Black win by resignation.");
+    		winner='b';
     		isEnding=true;
     	}
     }
     
+    public void blackCatOn(){
+    	isBlackAIOn=!isBlackAIOn;
+    }
+    
+    public void whiteCatOn(){
+    	isWhiteAIOn=!isWhiteAIOn;
+    }
+    
+    //return the symmetry of the information
+    private String symmetry(String inf){
+    	
+    	int len=inf.length();
+    	String s=inf;
+    	char[] sym=new char[len+1];
+    	sym=s.toCharArray();
+    	for(int i=0;i<len;i++){
+    		if(inf.charAt(i)=='['){
+    			sym[i+1]=inf.charAt(i+2);
+    			sym[i+2]=inf.charAt(i+1);
+    		}
+    	}
+
+    	return String.valueOf(sym);
+    }
+    
+    public void RecordEndingGame(){
+    	
+    	//record the game was played
+		try{
+			FileReader fr = new FileReader("sz5.txt");
+			BufferedReader br = new BufferedReader(fr);
+			recordList.clear();
+			while(br.ready()) {
+				//System.out.print((char)br.read());
+				String record = br.readLine();
+				int sign=record.indexOf(';');
+				if(sign!=-1)
+					record=record.substring(sign);
+				recordList.add(record);
+			}
+			fr.close();
+			
+			boolean isRepeat=false;
+			int sign=information.indexOf(';',1);
+			String s=information.substring(sign).concat("("+winner+")");
+			for(int i=0; i<recordList.size() ;i++){
+				if(s.equals(recordList.get(i)))
+					isRepeat=true;
+			}
+			if(!isRepeat){
+				recordList.add(s);
+				recordList.sort(null);
+			}
+			
+			symmetryinformation=symmetry(s);
+			isRepeat=false;
+			
+			for(int i=0; i<recordList.size() ;i++){
+				if(symmetryinformation.equals(recordList.get(i)))
+					isRepeat=true;
+			}
+			if(!isRepeat){
+				recordList.add(symmetryinformation);
+				recordList.sort(null);
+			}
+			
+			int sz=recordList.size();
+			record = new String [sz];
+			for(int i=0; i<sz ;i++){
+				record[i]=(String)recordList.get(i);
+			}
+
+			FileWriter fw = new FileWriter("sz5.txt");
+			for(int i=0; i<sz ;i++)
+				fw.write(i+record[i] + "\r\n");
+			fw.flush();
+			fw.close();
+			//System.out.println(information);
+		} catch (IOException e) {
+		}  	
+    }
     
     public void newGame(){
+    	
     	int dialogButton = 0; 
 	    dialogButton = JOptionPane.showConfirmDialog (null, "Do you want to play a new game?","Confirm", dialogButton);
 	    if(dialogButton == JOptionPane.YES_OPTION){
@@ -673,7 +820,9 @@ public class ChessBoard extends PApplet{
 			}
 			initial();
 			loading();
+			recording=true;
 	    }
     }
+    
 
 }
