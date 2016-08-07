@@ -43,7 +43,8 @@ public class ChessBoard extends PApplet{
 	private Minim minim;
 	private AudioPlayer song;
 	private AudioPlayer effect[]=new AudioPlayer[10];
-	private AlphaCat ai;
+	private Zero zero;
+	private AlphaCat alphacat;
 	public int lastMove[]=new int[2];
 	
 	String record[];
@@ -91,7 +92,8 @@ public class ChessBoard extends PApplet{
         blackCat1.resize(200, 150);
         whiteCat2.resize(200, 150);
         blackCat2.resize(200, 150);
-		ai=new AlphaCat(size,this,this);
+        zero=new Zero(size,this,this);
+        alphacat=new AlphaCat(size,this,this);
 		
 		initial();
 		loading();
@@ -123,12 +125,12 @@ public class ChessBoard extends PApplet{
 		if(!isEnding){
 			if(isWhiteAIOn && nowStep%2==0){
 				isAITurn=true;
-				DoActionForAI('w');
+				DoActionForAI(alphacat,'w');
 				isAITurn=false;
 			}
 			else if(isBlackAIOn && nowStep%2==1){
 				isAITurn=true;
-				DoActionForAI('b');
+				DoActionForAI(alphacat,'b');
 				isAITurn=false;
 			}
 			if(mousePressed && canPlaceChess && !isAITurn ){
@@ -652,7 +654,7 @@ public class ChessBoard extends PApplet{
     
    
     
-    private void DoActionForAI(char color){
+    private void DoActionForAI(AI ai,char color){
     	
     	boolean wantResign=true;
     	int point[]=new int[4];
