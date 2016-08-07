@@ -51,6 +51,11 @@ public class ChessBoard extends PApplet{
 	ArrayList<String> recordList = new ArrayList<String>();
 	private char winner;//b:black, w:white, d:draw
 	
+	//use in check the draw(cycle)
+	private boolean occurCycle=false;
+	private String cycleStep;
+	
+	
 	public ChessBoard() {
 		try {
 			FileReader fr = new FileReader("record.txt");
@@ -260,8 +265,17 @@ public class ChessBoard extends PApplet{
 		int begin=information.indexOf(';',1);
 		int unit=11;//a one step record
 		int len=information.length();
+		
 		if(len>1){
 			String s=information.substring(begin);
+			if(occurCycle){
+				if(s.endsWith(cycleStep)){
+					JOptionPane.showMessageDialog(null,"draw by threefold repetition.");
+					winner='d';
+					isEnding=true;
+				}
+			}
+				
 			String halfStr;
 			int stepNum=s.length()/unit;
 			if(stepNum%2==1)
@@ -271,9 +285,13 @@ public class ChessBoard extends PApplet{
 				s=information.substring(begin);
 				halfStr=s.substring(s.length()/2);
 				if(s.startsWith(halfStr)){
-					System.out.println("cycle");
+					occurCycle=true;
+					cycleStep=halfStr.substring(0,unit);
+					//System.out.println(cycleStep);
 					break;
 				}
+				else 
+					occurCycle=false;
 				begin+=2*unit;
 			}
 		}
