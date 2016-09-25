@@ -45,11 +45,9 @@ public class ChessBoard extends PApplet{
 	private AudioPlayer effect[]=new AudioPlayer[10];
 	private Zero zero;
 	private AlphaCat alphacat;
+	private Predictor predictor;
 	public int lastMove[]=new int[2];
 	
-	String record[];
-	private boolean recording=true;
-	ArrayList<String> recordList = new ArrayList<String>();
 	private char winner;//b:black, w:white, d:draw
 	
 	//use in check the draw(cycle)
@@ -94,6 +92,7 @@ public class ChessBoard extends PApplet{
         blackCat2.resize(200, 150);
         zero=new Zero(size,this,this);
         alphacat=new AlphaCat(size,this,this);
+        predictor=new Predictor(size,this,this);
 		
 		initial();
 		loading();
@@ -125,12 +124,12 @@ public class ChessBoard extends PApplet{
 		if(!isEnding){
 			if(isWhiteAIOn && nowStep%2==0){
 				isAITurn=true;
-				DoActionForAI(alphacat,'w');
+				DoActionForAI(predictor,'w');
 				isAITurn=false;
 			}
 			else if(isBlackAIOn && nowStep%2==1){
 				isAITurn=true;
-				DoActionForAI(alphacat,'b');
+				DoActionForAI(predictor,'b');
 				isAITurn=false;
 			}
 			if(mousePressed && canPlaceChess && !isAITurn ){
@@ -158,11 +157,6 @@ public class ChessBoard extends PApplet{
 			 CheckEnding();
 			 CheckDraw();
 		 }
-		
-		 /*if(isEnding && size==5 && recording){
-			 RecordEndingGame();
-			 recording=false;
-		 }*/
 		
 		background(52,203,41);
 		fill(168,134,87);
@@ -752,7 +746,7 @@ public class ChessBoard extends PApplet{
     }
     
     //return the symmetry of the information
-    private String symmetry(String inf){
+    public String symmetry(String inf){
     	
     	int len=inf.length();
     	String s=inf;
@@ -769,6 +763,8 @@ public class ChessBoard extends PApplet{
     }
     
     public void RecordEndingGame(){
+
+    	ArrayList<String> recordList = new ArrayList<String>();
     	
     	//record the game was played
 		try{
@@ -810,7 +806,7 @@ public class ChessBoard extends PApplet{
 			}
 			
 			int sz=recordList.size();
-			record = new String [sz];
+			String record[] = new String [sz];
 			for(int i=0; i<sz ;i++){
 				record[i]=(String)recordList.get(i);
 			}
@@ -840,7 +836,6 @@ public class ChessBoard extends PApplet{
 			}
 			initial();
 			loading();
-			recording=true;
 	    }
     }
     

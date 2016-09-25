@@ -435,7 +435,7 @@ public class AlphaCat extends AI{
      
      
      //find the good step from experience
-     public void looking(char color){
+     private void looking(char color){
     	 
     	 char d=' ';
  		 if(color=='b')d='w';
@@ -540,11 +540,13 @@ public class AlphaCat extends AI{
 		
 		copyBoard();
 		
-		looking(color);
-		if(exStepNum>0){
-			for(int i=0;i<exStepNum;i++){
-				if(exStepValue[i]>=100)
-					return exStep[i];
+		if(size==5){
+			looking(color);
+			if(exStepNum>0){
+				for(int i=0;i<exStepNum;i++){
+					if(exStepValue[i]>=100)
+						return exStep[i];
+				}
 			}
 		}
 		
