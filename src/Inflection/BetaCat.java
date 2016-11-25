@@ -84,11 +84,11 @@ public class BetaCat extends AI{
 						}
 						else
 							a = new int [1][4];
-						length++;
 						a[length][0] = size+1;
 						a[length][1] = size+1;
 						a[length][2] = i;
 						a[length][3] = j;
+						length++;
 					}
 				}
 			}

@@ -113,6 +113,9 @@ public class ChessBoard extends PApplet{
 		cp5.addButton("newGame").setLabel("NewGame")
                                 .setPosition(700,120)
                                 .setSize(200, 50);
+		cp5.addButton("test").setLabel("Test")
+		                        .setPosition(920,120)
+		                        .setSize(200, 50);
 		
 		minim = new Minim(this);
 		effect[0]=minim.loadFile("Stone.wav");
@@ -837,6 +840,12 @@ public class ChessBoard extends PApplet{
 			initial();
 			loading();
 	    }
+    }
+    
+    public void test(){
+    	
+    	BetaCat ai=new BetaCat(size,this,this);
+    	ai.setAllBreedMove(points, 'b');
     }
     
 
