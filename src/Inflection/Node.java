@@ -18,8 +18,12 @@ public class Node {
    this.isVisit=false;
   }
   
-  public void deleteTree(){
-	  
+  public Node deleteTree(){
+	  if(!this.children.isEmpty())
+		  for (Node each : this.getChildren()) {
+			  each = each.deleteTree();
+		  }
+	  return null;
   }
   
   public int[] getMove() {
