@@ -95,12 +95,51 @@ public class BetaCat extends AI{
 		return a;
 			
 	}
+	
+	//judge whether board[i][j]'s surrounding has enemy color
+	private boolean valueJump(char[][] board, char d, int i, int j){
+		boolean b=false;
+		if(i > 1 && board[i-1][j] == d)
+			b = true;
+		else if(i < size && board[i+1][j] == d)
+			b = true;
+		else if(j > 1 && board[i][j-1] == d)
+			b = true;
+		else if(j < size && board[i][j+1] == d)
+			b = true;
+		else if(i > 1 && j > 1 && board[i-1][j-1] == d)
+			b = true;
+		else if(i > 1 && j < size && board[i-1][j+1] == d)
+			b = true;
+		else if(i < size && j > 1 && board[i+1][j-1] == d)
+			b = true;
+		else if(i < size && j < size && board[i+1][j+1] == d)
+			b = true;
+		return b;
+	}
 	 
 	private int[][] setAllJumpMove(char[][] board, char color){
-		
+		char d;
+		if(color=='b')d='w';
+		else d='b';
+		for(int i=1; i<=size ;i++)
+			for(int j=1; j<=size ;j++){
+				if(board[i][j]=='n' && valueJump(board,d,i,j)){
+	
+				}
+			}
 	}
 	
 	private int[][] setAllBadJumpMove(char[][] board, char color){
+		char d;
+		if(color=='b')d='w';
+		else d='b';
+		for(int i=1; i<=size ;i++)
+			for(int j=1; j<=size ;j++){
+				if(board[i][j]=='n' && !valueJump(board,d,i,j)){
+	
+				}
+			}
 		
 	}
 	
