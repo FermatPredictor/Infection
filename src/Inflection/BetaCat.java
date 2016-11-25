@@ -122,12 +122,79 @@ public class BetaCat extends AI{
 		char d;
 		if(color=='b')d='w';
 		else d='b';
+		int [][] a = new int [40][4];
+		int [][] temp = null;
+		int length = 0;
+		boolean b;
 		for(int i=1; i<=size ;i++)
 			for(int j=1; j<=size ;j++){
 				if(board[i][j]=='n' && valueJump(board,d,i,j)){
-	
+					b = false;
+					if(i > 2 && board[i-2][j] == color){
+						a[length][0] = i-2;
+						a[length][1] = j;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
+					else if(i > 1 && j < size && board[i-1][j+1] == color){
+						a[length][0] = i-1;
+						a[length][1] = j+1;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
+					else if(j < size-1 && board[i][j+2] == color){
+						a[length][0] = i;
+						a[length][1] = j+2;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
+					else if(i < size && j < size && board[i+1][j+1] == color){
+						a[length][0] = i+1;
+						a[length][1] = j+1;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
+					else if(i < size-1 && board[i+2][j] == color){
+						a[length][0] = i+2;
+						a[length][1] = j;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
+					else if(i < size && j > 1 && board[i+1][j-1] == color){
+						a[length][0] = i+1;
+						a[length][1] = j-1;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
+					else if(j > 2 && board[i][j-2] == color){
+						a[length][0] = i;
+						a[length][1] = j-2;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+						
+					}
+					else if(i > 1 && j > 1 && board[i-1][j-1] == color){
+						a[length][0] = i-1;
+						a[length][1] = j-1;
+						a[length][2] = i;
+						a[length][3] = j;
+						length++;
+					}
 				}
 			}
+			temp = new int [length][4];
+			for (int k=0; k<length; k++)
+				for (int s=0; s<4; s++){
+					temp[k][s] = a[k][s];
+				}
+		return temp;
 	}
 	
 	private int[][] setAllBadJumpMove(char[][] board, char color){
