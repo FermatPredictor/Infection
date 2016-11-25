@@ -57,7 +57,43 @@ public class BetaCat extends AI{
 	}
 	
 	private int[][] setAllBreedMove(char[][] board, char color){
-		
+		int [][] a = null;
+		int [][] temp = null;
+		int length = 0;
+		boolean b;
+		for (int i=1; i<=size; i++)
+			for (int j=1; j<=size; j++){
+				b = false;
+				if(board[i][j] == 'n'){
+					if(i > 1 && board[i-1][j] == color)
+						b = true;
+					else if(i < size && board[i+1][j] == color)
+						b = true;
+					else if(j > 1 && board[i][j-1] == color)
+						b = true;
+					else if(j < size && board[i][j+1] == color)
+						b = true;
+					if(b == true){
+						if(length > 0){
+							temp = a;
+							a = new int [length+1][4];
+							for (int k=0; k<length; k++)
+								for (int s=0; s<4; s++){
+									a[k][s] = temp[k][s];
+								}
+						}
+						else
+							a = new int [1][4];
+						length++;
+						a[length][0] = size+1;
+						a[length][1] = size+1;
+						a[length][2] = i;
+						a[length][3] = j;
+					}
+				}
+			}
+		return a;
+			
 	}
 	 
 	private int[][] setAllJumpMove(char[][] board, char color){
