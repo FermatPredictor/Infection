@@ -1,1 +1,1 @@
-;;R[ff]B[ba];R[ff]W[de];R[ff]B[bb];R[ff]W[dd];R[ff]B[cb];R[ff]W[dc];R[bb]B[cc];R[de]W[cd];R[ff]B[db];R[cd]W[bc];R[ff]B[bb];R[ff]W[cd];R[bb]B[bd];R[dc]W[da];R[ff]B[dc];R[ff]W[ca];R[ff]B[bb];R[ee]W[ec];R[cb]B[eb];R[ff]W[ed];R[ff]B[cb];R[ec]W[ea];R[ff]B[ec]
+;
