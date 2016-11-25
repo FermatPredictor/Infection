@@ -56,19 +56,19 @@ public class BetaCat extends AI{
 		levelWinStone=new int[endSourceLevel];
 	}
 	
-	private int[][] setAllBreedMove(int[][] board){
+	private int[][] setAllBreedMove(char[][] board, char color){
 		
 	}
 	 
-	private int[][] setAllJumpMove(int[][] board){
+	private int[][] setAllJumpMove(char[][] board, char color){
 		
 	}
 	
-	private int[][] setAllBadJumpMove(int[][] board){
+	private int[][] setAllBadJumpMove(char[][] board, char color){
 		
 	}
 	
-	private int countWinNum(int[][] board){
+	private int countWinNum(char[][] board){
 		
 	}
 	
