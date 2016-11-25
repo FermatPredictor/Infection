@@ -92,6 +92,7 @@ public class BetaCat extends AI{
 					}
 				}
 			}
+		
 		return a;
 			
 	}
@@ -189,11 +190,18 @@ public class BetaCat extends AI{
 					}
 				}
 			}
-			temp = new int [length][4];
-			for (int k=0; k<length; k++)
-				for (int s=0; s<4; s++){
-					temp[k][s] = a[k][s];
-				}
+		temp = new int [length][4];
+		for (int k=0; k<length; k++)
+			for (int s=0; s<4; s++){
+				temp[k][s] = a[k][s];
+			}
+		//test way
+		/*for(int[] x:temp){
+			for(int y:x){
+				System.out.print(y+" ");
+			}
+			System.out.println();
+		}*/
 		return temp;
 	}
 	

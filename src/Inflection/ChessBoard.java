@@ -845,7 +845,7 @@ public class ChessBoard extends PApplet{
     public void test(){
     	
     	BetaCat ai=new BetaCat(size,this,this);
-    	ai.setAllBreedMove(points, 'b');
+    	//ai.setAllJumpMove(points, 'b');
     }
     
 
