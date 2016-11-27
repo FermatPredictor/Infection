@@ -287,11 +287,28 @@ public class BetaCat extends AI{
 		return temp;
 	}
 	
+	//for a ending game, count the number of how many stone that black win
 	private int countWinNum(char[][] board, char cannotMoveColor){
+		 int blackStones=0;
+	     int whiteStones=0;
+		 for(int i=1; i<=size ;i++)
+				for(int j=1; j<=size ;j++){
+					if(board[i][j]=='b')
+						blackStones++;
+					else if(board[i][j]=='w')
+						whiteStones++;
+					else if(board[i][j]=='n'){
+						 if(cannotMoveColor=='b')
+							 whiteStones++;
+						 else if(cannotMoveColor=='w')
+							 blackStones++;
+					}
+				}
+		 return blackStones-whiteStones;
 		
 	}
 	
-	private void expandNode(Node node){
+	private void expandNode(Node node, char[][] board, char nextColor){
 		
 	}
 	
