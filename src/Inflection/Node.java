@@ -7,7 +7,7 @@ public class Node {
 
   private int[] move;
   private int prob;
-  public char color;
+  public char color = ' ';
   public boolean isVisit;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;

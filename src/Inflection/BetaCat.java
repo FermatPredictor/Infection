@@ -309,7 +309,15 @@ public class BetaCat extends AI{
 	}
 	
 	private void expandNode(Node node, char[][] board, char nextColor){
-		
+		if(!node.isVisit){
+			int[][] a = setAllJumpMove(board, nextColor);
+			int[][] b = setAllBreedMove(board, nextColor);
+			for(int[] y:a)
+				node.addChild(y);
+			for(int[] y:b)
+				node.addChild(y);
+			node.isVisit = true;
+		}
 	}
 	
 	private Node randomChooseSubNode(Node node){
