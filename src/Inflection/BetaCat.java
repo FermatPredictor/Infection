@@ -308,6 +308,21 @@ public class BetaCat extends AI{
 		
 	}
 	
+	//for a non-ending game, count the number of how many stone that black win now
+	private int simpleCountWinNum(char[][] board){
+		 int blackStones=0;
+	     int whiteStones=0;
+		 for(int i=1; i<=size ;i++)
+				for(int j=1; j<=size ;j++){
+					if(board[i][j]=='b')
+						blackStones++;
+					else if(board[i][j]=='w')
+						whiteStones++;
+				}
+		 return blackStones-whiteStones;
+		
+	}
+	
 	private void expandNode(Node node, char[][] board, char nextColor){
 		if(!node.isVisit){
 			int[][] a = setAllJumpMove(board, nextColor);
@@ -327,16 +342,24 @@ public class BetaCat extends AI{
 		for (Node each : node.getChildren()) {
 			 sum += each.getProb();
 		 }
-		rand_num = random.nextInt(sum);
-		sum = 0;
-		for (Node each : node.getChildren()) {
-			 sum += each.getProb();
-			 if(sum > rand_num){
-				 n = each;
-				 break;
+		if(sum > 0){
+			rand_num = random.nextInt(sum);
+			sum = 0;
+			for (Node each : node.getChildren()) {
+				 sum += each.getProb();
+				 if(sum > rand_num){
+					 n = each;
+					 break;
+				 }
 			 }
-		 }
+		}
 		return n;
+	}
+	
+	private char changeColor(char color){
+		if (color=='b')return 'w';
+		else if(color=='w')return 'b';
+		else return 'n';
 	}
 	
 	
@@ -376,21 +399,16 @@ public class BetaCat extends AI{
 	
 
 	
-	 private void simulateDoAction(int rx, int ry, int x, int y, char color){
+	 private void simulateDoAction(int[] point, char color){
 		 
-		 if(rx>0 && ry>0 && rx<=size && ry<=size)
-			 simulateBoard[rx][ry]='n';
-		 if(x>0 && y>0 && x<=size && y<=size && simulateBoard[x][y]=='n'){
-			 simulateBoard[x][y]=color;
-			 simulateInfection(x,y,color);
+		 if(point[0]>0 && point[1]>0 && point[0]<=size && point[1]<=size)
+			 simulateBoard[point[0]][point[1]]='n';
+		 if(point[2]>0 && point[3]>0 && point[2]<=size && point[3]<=size && simulateBoard[point[2]][point[3]]=='n'){
+			 simulateBoard[point[2]][point[3]]=color;
+			 simulateInfection(point[2],point[3],color);
 		 }
 	}
 	 
-
-	 private int[] simulateRandomChoosePoint(char color){
-
-	    }
-
 
 	 private void copyBoard(){
 			 for(int i=1; i<=size ;i++)
@@ -964,134 +982,23 @@ public class BetaCat extends AI{
 	 
 	 //this will decide a coordinate that AI want to play.
      public int[] AIaction(char color){
-    	
-    	int point[]=new int[4];
-	    allowedMoveNum=0;
-	    nowPosition=0;
-	    boolean wantResign=true;
-	    
-	    char d=' ';
-		if(color=='b')d='w';
-	    else if(color=='w')d='b';	
-		
-		copyBoard();
-		String information=board.information.substring(1);
-		
-		if(information.isEmpty()){
-			useSpecial=false;
-			Random ran=new Random();
-			if(ran.nextInt()%2==0)
-				useSpecial=true;
-		}
-		else if(information.startsWith(";R[aa]B[bb]"))
-			useSpecial=true;
-			
-		
-		if(size==5 && color=='b' && useSpecial){
-			lookingSpecial('b');
-			if(exStepNum>0){
-				try {
-				    Thread.sleep(500); //delay 0.5s
-				} catch (Exception e) {
-				}
-				Random ran=new Random();
-				return exStep[ran.nextInt(exStepNum)];	
-			}
-		}
-		else if(size==5 && color=='w'){
-			lookingSpecial('w');
-			if(exStepNum>0){
-				try {
-				    Thread.sleep(500); //delay 0.5s
-				} catch (Exception e) {
-				}
-				Random ran=new Random();
-				return exStep[ran.nextInt(exStepNum)];	
-			}
-		}
-		
-		int nullPointNum=0;
-		for(int i=1; i<=size ;i++)
-			for(int j=1; j<=size ;j++)
-				if(simulateBoard[i][j]=='n'){
-					nullPointNum++;
-				}
-		
-		if(nullPointNum<=4){
-	    	for(int i=0; i<endSourceLevel;i++){
-	    		if(color=='b'){
-	    			if(i%2==1)
-	    				levelWinStone[i]=-999;
-	    			if(i%2==0)
-	    				levelWinStone[i]=999;
-	    		}
-	    		else{
-	    			if(i%2==1)
-	    				levelWinStone[i]=999;
-	    			if(i%2==0)
-	    				levelWinStone[i]=-999;
-	    		}
-	    	}	
-			return endingGameMode(color);
-		}
-	
-		
-		setAllAllowedMove(color);
-		
-
-
-    	for(int i=0; i<40;i++)
-    		allowedMoveValue[i]=0;
-    	for(int i=0; i<sourceLevel;i++)
-    		levelWinProb[i]=0;
-
-    	
-    	
-    	for(int i=0; i<allowedMoveNum ;i++){
-    		copyBoard();
-			allowedMoveValue[i]=countWinProb(1,allowedMove[i][0],allowedMove[i][1],allowedMove[i][2],allowedMove[i][3],color);
-	    }
-    		
-    	for(int i=0; i<allowedMoveNum ;i++){
-			if(allowedMoveValue[i]>0){
-				wantResign=false;
-				break;
-			}
-    	}
-    	
-
-    	isNearFullBoard=true;
-		if(nullPointNum >= (size*size)/5)
-			isNearFullBoard=false;
-    	if(wantResign && !isNearFullBoard){
-    		point[0]=size+1;
-    		point[1]=size+1;
-    		point[2]=size+1;
-    		point[3]=size+1;	
-    		return point;
-    	}
-    	
-    	
-    	int choose=0;
-    	point[0]=allowedMove[choose][0];
-		point[1]=allowedMove[choose][1];
-		point[2]=allowedMove[choose][2];
-		point[3]=allowedMove[choose][3];
-		
-		//System.out.println(color);
-		for(int i=0; i<allowedMoveNum ;i++){
-				if(allowedMoveValue[i]>allowedMoveValue[choose]){
-					choose=i;
-					point[0]=allowedMove[i][0];
-					point[1]=allowedMove[i][1];
-					point[2]=allowedMove[i][2];
-					point[3]=allowedMove[i][3];
-				}
-				//System.out.println(i+" "+allowedMove[i][0]+" "+allowedMove[i][1]+" "+allowedMove[i][2]+" "+allowedMove[i][3]+" "+allowedMoveValue[i]);
-			}
-		//System.out.println("");
-
-    	return point;
+    	 int point[]=new int[4];
+    	 copyBoard();
+    	 expandNode(root,simulateBoard,color);
+    	 Node play=randomChooseSubNode(root);
+    	 int[] p=play.getMove();
+    	 simulateDoAction(p,color);
+    	 color=changeColor(color);
+    	 for(int i=1;i<=simulateStepNum;i++){
+    		 expandNode(play,simulateBoard,color);
+    		 play=randomChooseSubNode(play);
+    		 p=play.getMove();
+    		 simulateDoAction(p,color);
+    		 color=changeColor(color);
+    	 }
+    	 int winNum=simpleCountWinNum(simulateBoard);
+    	 return point;
+ 
     }
 
 }
