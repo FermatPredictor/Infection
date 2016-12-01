@@ -18,8 +18,8 @@ public class BetaCat extends AI{
 	private boolean isNearFullBoard=true;//def: if stones>0.8 board, then true.
 	private boolean canMove=true;
 	private char cannotMoveColor=' ';
-	private int simulateNum=100;
-	private int simulateStepNum=6;
+	private int simulateNum=1000;
+	private int simulateStepNum=10;
 	private int sourceLevel=4;
 	private int[] levelWinProb;
 	private int nowPosition=0;
@@ -187,11 +187,13 @@ public class BetaCat extends AI{
 					}
 				}
 			}
-		temp = new int [length][4];
-		for (int k=0; k<length; k++)
-			for (int s=0; s<4; s++){
-				temp[k][s] = a[k][s];
-			}
+		if(length > 0){
+			temp = new int [length][4];
+			for (int k=0; k<length; k++)
+				for (int s=0; s<4; s++){
+					temp[k][s] = a[k][s];
+				}
+		}
 		//test way
 		/*for(int[] x:temp){
 			for(int y:x){
@@ -326,10 +328,14 @@ public class BetaCat extends AI{
 		if(!node.isVisit){
 			int[][] a = setAllJumpMove(board, nextColor);
 			int[][] b = setAllBreedMove(board, nextColor);
-			for(int[] y:a)
-				node.addChild(y,nextColor);
-			for(int[] y:b)
-				node.addChild(y,nextColor);
+			if(a != null){
+				for(int[] y:a)
+					node.addChild(y,nextColor);
+			}
+			if(b != null){
+				for(int[] y:b)
+					node.addChild(y,nextColor);
+			}
 			node.isVisit = true;
 		}
 	}
@@ -366,7 +372,7 @@ public class BetaCat extends AI{
  		boolean test = false;
  		int[][] a = setAllJumpMove(board, c);
  		int[][] b = setAllBreedMove(board, c);
- 		if(a.length + b.length == 0)
+ 		if(a==null && b==null)
  			test = true;
  		return test;
 	}
