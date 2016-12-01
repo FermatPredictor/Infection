@@ -7,7 +7,7 @@ public class Node {
 
   private int[] move;
   private int prob;
-  public char color = ' ';
+  private char color = ' ';
   public boolean isVisit;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;
@@ -36,6 +36,10 @@ public class Node {
 		  this.move[i] = move[i];
   }
   
+  public void setColor(char c) {
+	  this.color = c;
+  }
+  
   public List<Node> getChildren() {
    return children;
   }
@@ -50,6 +54,14 @@ public class Node {
      this.getChildren().add(node);
      return node;
   }
+  
+  public Node addChild(int[] move, char c) {
+	     Node node = new Node(this);
+	     node.setColor(c);
+	     node.setMove(move);
+	     this.getChildren().add(node);
+	     return node;
+	  }
   
   public void printTree(String appender) {
 	  for(int x:getMove())

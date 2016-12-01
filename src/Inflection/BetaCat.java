@@ -313,9 +313,9 @@ public class BetaCat extends AI{
 			int[][] a = setAllJumpMove(board, nextColor);
 			int[][] b = setAllBreedMove(board, nextColor);
 			for(int[] y:a)
-				node.addChild(y);
+				node.addChild(y,nextColor);
 			for(int[] y:b)
-				node.addChild(y);
+				node.addChild(y,nextColor);
 			node.isVisit = true;
 		}
 	}
