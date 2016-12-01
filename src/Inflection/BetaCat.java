@@ -23,7 +23,7 @@ public class BetaCat extends AI{
 	private int sourceLevel=4;
 	private int[] levelWinProb;
 	private int nowPosition=0;
-	private Node root;
+	private Node root=new Node(null);
 	
 	
 	private int winStoneNum=0; //def:blackStone-whiteStone for ending
@@ -362,6 +362,11 @@ public class BetaCat extends AI{
 		else return 'n';
 	}
 	
+    //true for ending
+ 	private boolean simulateCheckEnding(char[][] board, char c){
+
+		
+	}
 	
 	//if the stone place or move at a place, infect all the stones near the place
 	private void simulateInfection(int x, int y, char c){
@@ -422,95 +427,6 @@ public class BetaCat extends AI{
 					simulateBoard[i][j]=board[i][j];
 	 }
 	
-	 
-        //true for ending
-	 	private boolean simulateCheckEnding(char c){
-
-			
-			isFullBoard=true;
-			isNearFullBoard=true;
-			int blackStones=0;
-			int whiteStones=0;
-			int nullPointNum=0;
-			
-			for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++)
-					if(simulateBoard[i][j]=='n'){
-						nullPointNum++;
-						isFullBoard=false;
-					}
-			
-			if(nullPointNum >= size*size/5)
-				isNearFullBoard=false;
-
-			for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++){
-					if(simulateBoard[i][j]=='b')
-						blackStones++;
-					else if(simulateBoard[i][j]=='w')
-						whiteStones++;
-				}
-			
-			if(blackStones==0 || whiteStones==0){
-	    		return true;
-	    	}
-			
-			if(isFullBoard){
-				return true;
-			}
-			else {
-				canMove=false;
-				for(int i=1; i<=size ;i++)
-					 for(int j=1; j<=size ;j++)
-						 if(simulateBoard[i][j]=='n' && !canMove){
-							 if(i+1<=size){
-								 if(simulateBoard[i+1][j]==c)canMove=true;
-							 }
-				    		 if(i-1>0){
-				    			 if(simulateBoard[i-1][j]==c)canMove=true;
-				    		 }
-				    		 if(j+1<=size){
-				    			 if(simulateBoard[i][j+1]==c)canMove=true;
-				    		 }
-				    		 if(j-1>0){
-				    			 if(simulateBoard[i][j-1]==c)canMove=true;
-				    		 }
-				    		 
-				    		 if(i+2<=size){
-				    			 if(simulateBoard[i+2][j]==c)canMove=true;
-				    		 }
-				    		 if(i-2>0){
-				    			 if(simulateBoard[i-2][j]==c)canMove=true;
-				    		 }
-				    		 if(j+2<=size){
-				    			 if(simulateBoard[i][j+2]==c)canMove=true;
-				    		 }
-				    		 if(j-2>0){
-				    			 if(simulateBoard[i][j-2]==c)canMove=true;
-				    		 }
-				    			 
-				    	     if(i+1<=size && j+1<=size){
-				    			 if(simulateBoard[i+1][j+1]==c)canMove=true;
-				    	     }
-				    		 if(i-1>0 && j-1>0){
-				    			 if(simulateBoard[i-1][j-1]==c)canMove=true;
-				    		 }
-				    		 if(i+1<=size && j-1>0){
-				    			 if(simulateBoard[i+1][j-1]==c)canMove=true;
-				    		 }
-				    		 if(i-1>0 && j+1<=size){
-				    			 if(simulateBoard[i-1][j+1]==c)canMove=true;
-				    		 }
-				   }
-				
-				if(!canMove){
-					cannotMoveColor=c;
-					return true;
-				}
-				else
-					return false;
-			}
-		}
 	 	
 	 //if ending, make a simple count, "true" for win
 	 private boolean simpleCount(char c){
@@ -985,32 +901,45 @@ public class BetaCat extends AI{
     	 int point[]=new int[4];
     	 copyBoard();
     	 expandNode(root,simulateBoard,color);
-    	 Node play=randomChooseSubNode(root);
-    	 int[] p=play.getMove();
-    	 simulateDoAction(p,color);
-    	 color=changeColor(color);
-    	 for(int i=1;i<=simulateStepNum;i++){
-    		 expandNode(play,simulateBoard,color);
-    		 play=randomChooseSubNode(play);
-    		 p=play.getMove();
-    		 simulateDoAction(p,color);
-    		 color=changeColor(color);
+    	 for(int i=1;i<=simulateNum;i++){
+	    	 Node play=randomChooseSubNode(root);
+	    	 int[] p=play.getMove();
+	    	 simulateDoAction(p,color);
+	    	 color=changeColor(color);
+	    	 for(int j=1;j<=simulateStepNum;j++){
+	    		 if()
+	    			 break;
+	    		 expandNode(play,simulateBoard,color);
+	    		 play=randomChooseSubNode(play);
+	    		 p=play.getMove();
+	    		 simulateDoAction(p,color);
+	    		 color=changeColor(color);
+	    	 }
+	    	 int winNum=simpleCountWinNum(simulateBoard);
+	    	 if(winNum>0){
+	    		 while(play != null){
+	    			 if(play.getColor() == 'b')
+	    				 play.addProb();
+	    			 play = play.getParent();
+	    		 }
+	    	 }
+	    	 else if(winNum<0){
+	    		 while(play != null){
+	    			 if(play.getColor() == 'w')
+	    				 play.addProb();
+	    			 play = play.getParent();
+	    		 }
+	    	 }
     	 }
-    	 int winNum=simpleCountWinNum(simulateBoard);
-    	 if(winNum>0){
-    		 while(play != null){
-    			 if(play.getColor() == 'b')
-    				 play.addProb();
-    			 play = play.getParent();
+    	 int max = 0;
+    	 Node best = null;
+    	 for(Node each : root.getChildren()){
+    		 if(each.getProb() > max){
+    			 max = each.getProb();
+    			 best = each;
     		 }
     	 }
-    	 else if(winNum<0){
-    		 while(play != null){
-    			 if(play.getColor() == 'w')
-    				 play.addProb();
-    			 play = play.getParent();
-    		 }
-    	 }
+    	 point=best.getMove();
     	 return point;
  
     }
