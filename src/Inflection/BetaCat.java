@@ -361,6 +361,18 @@ public class BetaCat extends AI{
 		return n;
 	}
 	
+	private Node chooseHighWinProbSubNode(Node node){
+		 double max = 0;
+   	     Node best = null;
+	   	 for(Node each : node.getChildren()){
+	   		 if(each.getProb() > max){
+	   			 max = each.getProb();
+	   			 best = each;
+	   		 }
+	   	 }
+	   	 return best;
+	}
+	
 	private char changeColor(char color){
 		if (color=='b')return 'w';
 		else if(color=='w')return 'b';
@@ -910,7 +922,8 @@ public class BetaCat extends AI{
     	 expandNode(root,simulateBoard,color);
     	 for(int i=1;i<=simulateNum;i++){
     		 copyBoard();
-	    	 Node play=randomChooseSubNode(root);
+	    	 Node play=chooseHighWinProbSubNode(root);
+	    	 play.addVisitNum();
 	    	 int[] p=play.getMove();
 	    	 simulateDoAction(p,nextColor);
 	    	 color=changeColor(nextColor);
@@ -921,8 +934,9 @@ public class BetaCat extends AI{
 	    			 break;
 	    		 }
 	    		 expandNode(play,simulateBoard,color);
-	    		 play=randomChooseSubNode(play);
-	    		 p=play.getMove();
+	    		 play=chooseHighWinProbSubNode(play);
+	    		 play.addVisitNum();
+		    	 p=play.getMove();
 	    		 simulateDoAction(p,color);
 	    		 color=changeColor(color);
 	    	 }
@@ -934,14 +948,14 @@ public class BetaCat extends AI{
 	    	 if(winNum>0){
 	    		 while(play != null){
 	    			 if(play.getColor() == 'b')
-	    				 play.addProb();
+	    				 play.addWinNum();
 	    			 play = play.getParent();
 	    		 }
 	    	 }
 	    	 else if(winNum<0){
 	    		 while(play != null){
 	    			 if(play.getColor() == 'w')
-	    				 play.addProb();
+	    				 play.addWinNum();
 	    			 play = play.getParent();
 	    		 }
 	    	 }
@@ -955,7 +969,7 @@ public class BetaCat extends AI{
     		 System.out.print(each.getProb());
     		 System.out.println();
     		 if(each.getProb() > max){
-    			 max = each.getProb();
+    			 max = each.getVisitNum();
     			 best = each;
     		 }
     	 }

@@ -6,7 +6,8 @@ import java.util.List;
 public class Node {
 
   private int[] move;
-  private int prob;
+  private int visitNum;
+  private int winNum;
   private char color = ' ';
   public boolean isVisit;
   private final List<Node> children = new ArrayList<>();
@@ -15,7 +16,8 @@ public class Node {
   public Node(Node parent) {
    this.parent = parent;
    this.move=new int[4];
-   this.prob=1;
+   this.visitNum=1;
+   this.winNum=1;
    this.isVisit=false;
   }
   
@@ -44,13 +46,21 @@ public class Node {
 	   return color;
   }
   
-  public void addProb() {
-	   this.prob++;
+  public void addVisitNum() {
+	  this.visitNum++;
   }
   
-  public int getProb() {
-	   return prob;
+  public void addWinNum() {
+	  this.winNum++;
+  }
+  
+  public double getProb() {
+	   return winNum/visitNum;
  }
+  
+  public int getVisitNum() {
+	   return visitNum;
+  }
   
   public List<Node> getChildren() {
    return children;
