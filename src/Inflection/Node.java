@@ -40,6 +40,18 @@ public class Node {
 	  this.color = c;
   }
   
+  public char getColor() {
+	   return color;
+  }
+  
+  public void addProb() {
+	   this.prob++;
+  }
+  
+  public int getProb() {
+	   return prob;
+ }
+  
   public List<Node> getChildren() {
    return children;
   }
