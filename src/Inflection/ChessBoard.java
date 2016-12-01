@@ -45,6 +45,7 @@ public class ChessBoard extends PApplet{
 	private AudioPlayer effect[]=new AudioPlayer[10];
 	private Zero zero;
 	private AlphaCat alphacat;
+	private BetaCat betacat;
 	private Predictor predictor;
 	public int lastMove[]=new int[2];
 	
@@ -92,6 +93,7 @@ public class ChessBoard extends PApplet{
         blackCat2.resize(200, 150);
         zero=new Zero(size,this,this);
         alphacat=new AlphaCat(size,this,this);
+        betacat=new BetaCat(size,this,this);
         predictor=new Predictor(size,this,this);
 		
 		initial();
@@ -127,12 +129,12 @@ public class ChessBoard extends PApplet{
 		if(!isEnding){
 			if(isWhiteAIOn && nowStep%2==0){
 				isAITurn=true;
-				DoActionForAI(predictor,'w');
+				DoActionForAI(betacat,'w');
 				isAITurn=false;
 			}
 			else if(isBlackAIOn && nowStep%2==1){
 				isAITurn=true;
-				DoActionForAI(predictor,'b');
+				DoActionForAI(betacat,'b');
 				isAITurn=false;
 			}
 			if(mousePressed && canPlaceChess && !isAITurn ){

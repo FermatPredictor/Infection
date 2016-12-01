@@ -23,7 +23,6 @@ public class BetaCat extends AI{
 	private int sourceLevel=4;
 	private int[] levelWinProb;
 	private int nowPosition=0;
-	private Node root=new Node(null);
 	
 	
 	private int winStoneNum=0; //def:blackStone-whiteStone for ending
@@ -367,11 +366,9 @@ public class BetaCat extends AI{
  		boolean test = false;
  		int[][] a = setAllJumpMove(board, c);
  		int[][] b = setAllBreedMove(board, c);
- 		if(a.length + b.length > 0)
+ 		if(a.length + b.length == 0)
  			test = true;
  		return test;
- 		
-		
 	}
 	
 	//if the stone place or move at a place, infect all the stones near the place
@@ -904,24 +901,34 @@ public class BetaCat extends AI{
 	 
 	 //this will decide a coordinate that AI want to play.
      public int[] AIaction(char color){
+    	 Node root = new Node(null);
     	 int point[]=new int[4];
     	 copyBoard();
+    	 char nextColor=color;
     	 expandNode(root,simulateBoard,color);
     	 for(int i=1;i<=simulateNum;i++){
+    		 copyBoard();
 	    	 Node play=randomChooseSubNode(root);
 	    	 int[] p=play.getMove();
-	    	 simulateDoAction(p,color);
-	    	 color=changeColor(color);
+	    	 simulateDoAction(p,nextColor);
+	    	 color=changeColor(nextColor);
+	    	 char cannotMoveColor='n';
 	    	 for(int j=1;j<=simulateStepNum;j++){
-	    		 if()
+	    		 if(simulateCheckEnding(simulateBoard,color)){
+	    			 cannotMoveColor=color;
 	    			 break;
+	    		 }
 	    		 expandNode(play,simulateBoard,color);
 	    		 play=randomChooseSubNode(play);
 	    		 p=play.getMove();
 	    		 simulateDoAction(p,color);
 	    		 color=changeColor(color);
 	    	 }
-	    	 int winNum=simpleCountWinNum(simulateBoard);
+	    	 int winNum;
+	    	 if(cannotMoveColor!='n')
+	    		 winNum=countWinNum(simulateBoard, cannotMoveColor);
+	    	 else
+	    		 winNum=simpleCountWinNum(simulateBoard);
 	    	 if(winNum>0){
 	    		 while(play != null){
 	    			 if(play.getColor() == 'b')
