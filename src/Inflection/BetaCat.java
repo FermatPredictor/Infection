@@ -997,6 +997,12 @@ public class BetaCat extends AI{
     		 color=changeColor(color);
     	 }
     	 int winNum=simpleCountWinNum(simulateBoard);
+    	 if(winNum>0){
+    		 
+    	 }
+    	 else if(winNum<0){
+    		 
+    	 }
     	 return point;
  
     }
