@@ -949,11 +949,17 @@ public class BetaCat extends AI{
     	 int max = 0;
     	 Node best = null;
     	 for(Node each : root.getChildren()){
+    		 int[] a=each.getMove();
+    		 for(int x:a)
+    			 System.out.print(x+" ");
+    		 System.out.print(each.getProb());
+    		 System.out.println();
     		 if(each.getProb() > max){
     			 max = each.getProb();
     			 best = each;
     		 }
     	 }
+    	 System.out.println();
     	 point=best.getMove();
     	 return point;
  
