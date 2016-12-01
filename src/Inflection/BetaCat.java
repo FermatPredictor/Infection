@@ -893,10 +893,6 @@ public class BetaCat extends AI{
  		} catch (IOException e) {
  		}  	
      }
-	 
-     private int countWinProb(int position, int rx, int ry, int x, int y, char color){
-    	 return 0;
-     }
      
 	 
 	 //this will decide a coordinate that AI want to play.
