@@ -321,7 +321,22 @@ public class BetaCat extends AI{
 	}
 	
 	private Node randomChooseSubNode(Node node){
-		
+		Random random = new Random();
+		int rand_num, sum = 0;
+		Node n = null;
+		for (Node each : node.getChildren()) {
+			 sum += each.getProb();
+		 }
+		rand_num = random.nextInt(sum);
+		sum = 0;
+		for (Node each : node.getChildren()) {
+			 sum += each.getProb();
+			 if(sum > rand_num){
+				 n = each;
+				 break;
+			 }
+		 }
+		return n;
 	}
 	
 	
