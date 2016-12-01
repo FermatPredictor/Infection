@@ -998,10 +998,18 @@ public class BetaCat extends AI{
     	 }
     	 int winNum=simpleCountWinNum(simulateBoard);
     	 if(winNum>0){
-    		 
+    		 while(play != null){
+    			 if(play.getColor() == 'b')
+    				 play.addProb();
+    			 play = play.getParent();
+    		 }
     	 }
     	 else if(winNum<0){
-    		 
+    		 while(play != null){
+    			 if(play.getColor() == 'w')
+    				 play.addProb();
+    			 play = play.getParent();
+    		 }
     	 }
     	 return point;
  
