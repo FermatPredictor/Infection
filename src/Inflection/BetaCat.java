@@ -364,7 +364,13 @@ public class BetaCat extends AI{
 	
     //true for ending
  	private boolean simulateCheckEnding(char[][] board, char c){
-
+ 		boolean test = false;
+ 		int[][] a = setAllJumpMove(board, c);
+ 		int[][] b = setAllBreedMove(board, c);
+ 		if(a.length + b.length > 0)
+ 			test = true;
+ 		return test;
+ 		
 		
 	}
 	
