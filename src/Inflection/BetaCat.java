@@ -18,8 +18,8 @@ public class BetaCat extends AI{
 	private boolean isNearFullBoard=true;//def: if stones>0.8 board, then true.
 	private boolean canMove=true;
 	private char cannotMoveColor=' ';
-	private int simulateNum=1000;
-	private int simulateStepNum=10;
+	private int simulateNum=2000;
+	private int simulateStepNum=14;
 	private int sourceLevel=4;
 	private int[] levelWinProb;
 	private int nowPosition=0;
@@ -966,9 +966,9 @@ public class BetaCat extends AI{
     		 int[] a=each.getMove();
     		 for(int x:a)
     			 System.out.print(x+" ");
-    		 System.out.print(each.getProb());
+    		 System.out.print(each.getVisitNum()+" "+each.getProb());
     		 System.out.println();
-    		 if(each.getProb() > max){
+    		 if(each.getVisitNum() > max){
     			 max = each.getVisitNum();
     			 best = each;
     		 }

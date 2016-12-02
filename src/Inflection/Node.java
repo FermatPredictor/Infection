@@ -55,7 +55,7 @@ public class Node {
   }
   
   public double getProb() {
-	   return winNum/visitNum;
+	   return winNum/(double)visitNum;
  }
   
   public int getVisitNum() {
