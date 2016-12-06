@@ -6,6 +6,7 @@ import java.util.List;
 public class Node {
 
   private int[] move;
+  private double prob;
   private int visitNum;
   private int winNum;
   private char color = ' ';
@@ -16,9 +17,10 @@ public class Node {
   public Node(Node parent) {
    this.parent = parent;
    this.move=new int[4];
-   this.visitNum=1;
-   this.winNum=1;
+   this.visitNum=0;
+   this.winNum=0;
    this.isVisit=false;
+   this.prob = -1;
   }
   
   public Node deleteTree(){
@@ -42,6 +44,10 @@ public class Node {
 	  this.color = c;
   }
   
+  public void setProb(double prob) {
+	  this.prob = prob;
+  }
+  
   public char getColor() {
 	   return color;
   }
@@ -55,11 +61,45 @@ public class Node {
   }
   
   public double getProb() {
-	   return winNum/(double)visitNum;
+	   return this.prob;
  }
   
   public int getVisitNum() {
 	   return visitNum;
+  }
+  
+  public int getScore(){
+	  if(!isVisit)return 3;
+	  else if(this.prob>=0.9)return 20;
+	  else if(this.prob>=0.8)return 10;
+	  else if(visitNum<20)return 3;
+	  else if(this.prob>=0.6)return 4;
+	  else if(this.prob>=0.4)return 3;
+	  else return 1;
+	
+  }
+  
+  public void refreshWinProb(Node subRefreshNode){
+	   int subnodeNum = 0, subnodeVisitNum = 0;
+	   for (Node each : this.getChildren()) {
+		   subnodeNum ++;
+		   if(each.isVisit)
+			   subnodeVisitNum ++;
+	   }
+	   if(5*subnodeVisitNum >= 4*subnodeNum) //有勝率的subnode過8成
+		   if(5*(subnodeVisitNum-1) >= 4*subnodeNum)//不需要重刷
+			   if(this.prob == -1 || this.prob > 1 - subRefreshNode.getProb())
+				   this.prob = 1 - subRefreshNode.getProb();
+		   else {//需要重刷
+			   double min = 1;
+			   for (Node each : this.getChildren()) {
+				   if(each.isVisit && 1 - each.getProb() < min)
+					   min = 1 - each.getProb();
+			   }
+			   this.prob = min;
+		   }
+	   else
+		   this.prob = winNum/(double)visitNum;
   }
   
   public List<Node> getChildren() {

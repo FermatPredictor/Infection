@@ -14,12 +14,10 @@ public class BetaCat extends AI{
 	protected PApplet parent;
 	protected ChessBoard board;
 	int size;
-	private boolean isFullBoard=true;
-	private boolean isNearFullBoard=true;//def: if stones>0.8 board, then true.
 	private boolean canMove=true;
 	private char cannotMoveColor=' ';
 	private int simulateNum=2000;
-	private int simulateStepNum=14;
+	private int simulateStepNum=30;
 	private int sourceLevel=4;
 	private int[] levelWinProb;
 	private int nowPosition=0;
@@ -345,13 +343,13 @@ public class BetaCat extends AI{
 		int rand_num, sum = 0;
 		Node n = null;
 		for (Node each : node.getChildren()) {
-			 sum += each.getProb();
+			 sum += each.getScore();
 		 }
 		if(sum > 0){
 			rand_num = random.nextInt(sum);
 			sum = 0;
 			for (Node each : node.getChildren()) {
-				 sum += each.getProb();
+				 sum += each.getScore();
 				 if(sum > rand_num){
 					 n = each;
 					 break;
@@ -372,6 +370,7 @@ public class BetaCat extends AI{
 	   	 }
 	   	 return best;
 	}
+	
 	
 	private char changeColor(char color){
 		if (color=='b')return 'w';
@@ -922,7 +921,7 @@ public class BetaCat extends AI{
     	 expandNode(root,simulateBoard,color);
     	 for(int i=1;i<=simulateNum;i++){
     		 copyBoard();
-	    	 Node play=chooseHighWinProbSubNode(root);
+	    	 Node play=randomChooseSubNode(root);
 	    	 play.addVisitNum();
 	    	 int[] p=play.getMove();
 	    	 simulateDoAction(p,nextColor);
@@ -934,7 +933,7 @@ public class BetaCat extends AI{
 	    			 break;
 	    		 }
 	    		 expandNode(play,simulateBoard,color);
-	    		 play=chooseHighWinProbSubNode(play);
+	    		 play=randomChooseSubNode(play);
 	    		 play.addVisitNum();
 		    	 p=play.getMove();
 	    		 simulateDoAction(p,color);
@@ -945,20 +944,21 @@ public class BetaCat extends AI{
 	    		 winNum=countWinNum(simulateBoard, cannotMoveColor);
 	    	 else
 	    		 winNum=simpleCountWinNum(simulateBoard);
-	    	 if(winNum>0){
-	    		 while(play != null){
-	    			 if(play.getColor() == 'b')
-	    				 play.addWinNum();
-	    			 play = play.getParent();
-	    		 }
-	    	 }
-	    	 else if(winNum<0){
-	    		 while(play != null){
-	    			 if(play.getColor() == 'w')
-	    				 play.addWinNum();
-	    			 play = play.getParent();
-	    		 }
-	    	 }
+	    	 if((winNum>0 && play.getColor() == 'b') || (winNum<0 && play.getColor() == 'w'))
+	    		 play.setProb(1);
+	    	 else
+	    		 play.setProb(0);
+	    	 Node temp = play;
+	    	 play = play.getParent();
+    		 while(play != null){
+    			 play.refreshWinProb(temp);
+    			 if(winNum>0 && play.getColor() == 'b')
+    				 play.addWinNum();
+    			 else if(winNum<0 && play.getColor() == 'w')
+    				 play.addWinNum();
+    			 play = play.getParent();
+    		 }
+
     	 }
     	 int max = 0;
     	 Node best = null;
