@@ -11,7 +11,7 @@ public class Node {
   private int winNum;
   private char color = ' ';
   public boolean isVisit;
-  private boolean isRealProb;
+  public boolean isRealProb;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;
   
@@ -121,7 +121,11 @@ public class Node {
 				   this.prob = min;
 			   }
 		   else
-			   this.prob = estiWinNum/(double)estivisitNum;
+		   {
+			   if(estivisitNum!=0)//有可能因為排除對手勝率=0的點，使得estivisitNum變成0
+				   this.prob = estiWinNum/(double)estivisitNum;
+			   else this.prob =-1;
+		   }
 	   }
   }
   

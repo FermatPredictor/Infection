@@ -932,6 +932,7 @@ public class BetaCat extends AI{
 	    	 simulateDoAction(p,nextColor);
 	    	 color=changeColor(nextColor);
 	    	 char cannotMoveColor='n';
+	    	 boolean isBreak=false;//在做randomChooseSubNode的判斷時，如果回傳null，表示對手的勝率全為0，此時break並不做winNum的判斷
 	    	 for(int j=1;j<=simulateStepNum;j++){
 	    		 if(simulateCheckEnding(simulateBoard,color)){
 	    			 cannotMoveColor=color;
@@ -941,26 +942,31 @@ public class BetaCat extends AI{
 	    		 Node choose=randomChooseSubNode(play);
 	    		 if(choose!= null)
 	    			 play=choose;
-	    		 else break;
+	    		 else {
+	    			 isBreak=true;
+	    			 break;
+	    		 }
 	    		 play.addVisitNum();
 		    	 p=play.getMove();
 	    		 simulateDoAction(p,color);
 	    		 color=changeColor(color);
 	    	 }
-	    	 int winNum;
-	    	 if(cannotMoveColor!='n')
-	    		 winNum=countWinNum(simulateBoard, cannotMoveColor);
-	    	 else
-	    		 winNum=simpleCountWinNum(simulateBoard);
-	    	 if((winNum>0 && play.getColor() == 'b') || (winNum<0 && play.getColor() == 'w'))
-	    		 play.setProb(1);
-	    	 else
-	    		 play.setProb(0);
+	    	 int winNum=0;
+	    	 if(!isBreak){
+		    	 if(cannotMoveColor!='n')
+		    		 winNum=countWinNum(simulateBoard, cannotMoveColor);
+		    	 else
+		    		 winNum=simpleCountWinNum(simulateBoard);
+		    	 if((winNum>0 && play.getColor() == 'b') || (winNum<0 && play.getColor() == 'w'))
+		    		 play.setProb(1);
+		    	 else
+		    		 play.setProb(0);
+	    	 }
 	    	 play = play.getParent();
     		 while(play != null){
-    			 if(winNum>0 && play.getColor() == 'b')
+    			 if(winNum>0 && play.getColor() == 'b' && !isBreak)
     				 play.addWinNum();
-    			 else if(winNum<0 && play.getColor() == 'w')
+    			 else if(winNum<0 && play.getColor() == 'w' && !isBreak)
     				 play.addWinNum();
     			 play.refreshWinProb();
     			 play = play.getParent();
@@ -980,7 +986,15 @@ public class BetaCat extends AI{
     			 int[] b=sub.getMove();
         		 for(int y:b)
         			 System.out.print(y+" ");
-    			 System.out.print(sub.getVisitNum()+" "+sub.getProb());
+    			 System.out.print(sub.getVisitNum()+" "+sub.isRealProb+" "+sub.getProb());
+        		 for(Node ssub : sub.getChildren()){
+        			 System.out.println();
+        			 System.out.print("    ");
+        			 int[] c=ssub.getMove();
+            		 for(int y:c)
+            			 System.out.print(y+" ");
+        			 System.out.print(ssub.getVisitNum()+" "+ssub.isRealProb+" "+ssub.getProb());
+        		 }
     		 }
     		 System.out.println();
     		 if(each.getProb() > max){
