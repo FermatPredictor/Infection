@@ -11,6 +11,7 @@ public class Node {
   private int winNum;
   private char color = ' ';
   public boolean isVisit;
+  private boolean isRealProb;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;
   
@@ -20,6 +21,7 @@ public class Node {
    this.visitNum=0;
    this.winNum=0;
    this.isVisit=false;
+   this.isRealProb=false;
    this.prob = -1;
   }
   
@@ -46,6 +48,7 @@ public class Node {
   
   public void setProb(double prob) {
 	  this.prob = prob;
+	  this.isRealProb=true;
   }
   
   public char getColor() {
@@ -70,36 +73,56 @@ public class Node {
   
   public int getScore(){
 	  if(!isVisit)return 3;
-	  else if(this.prob>=0.9)return 20;
-	  else if(this.prob>=0.8)return 10;
+	  else if(this.isRealProb && this.prob==1)return 100;
+	  else if(this.isRealProb && this.prob==0)return 0;
+	  else if(this.prob>=0.9)return 30;
+	  else if(this.prob>=0.8)return 20;
+	  else if(this.prob>=0.6)return 10;
 	  else if(visitNum<20)return 3;
-	  else if(this.prob>=0.6)return 4;
 	  else if(this.prob>=0.4)return 3;
 	  else return 1;
 	
   }
   
-  public void refreshWinProb(Node subRefreshNode){
+  public void refreshWinProb(){
 	   int subnodeNum = 0, subnodeVisitNum = 0;
+	   int estiWinNum=this.winNum;
+	   int estivisitNum=this.visitNum;
+	   boolean isThisProbBeOne=true;
+	   boolean isThisProbBeZero=false;
 	   for (Node each : this.getChildren()) {
+		   if(each.isRealProb && each.prob==0){//算勝率時，排除對手勝率=0的點，因為對手不會選那個點
+			   estiWinNum-=each.winNum;
+			   estivisitNum-=each.visitNum;
+		   }
+		   if(isThisProbBeOne && (!each.isRealProb || each.prob!=0))
+			   isThisProbBeOne=false;
+		   if(each.isRealProb && each.prob==1)
+			   isThisProbBeZero=true;
 		   subnodeNum ++;
-		   if(each.isVisit)
+		   if((each.isVisit && each.visitNum>=20)||each.isRealProb)
 			   subnodeVisitNum ++;
 	   }
-	   if(5*subnodeVisitNum >= 4*subnodeNum) //有勝率的subnode過8成
-		   if(5*(subnodeVisitNum-1) >= 4*subnodeNum)//不需要重刷
-			   if(this.prob == -1 || this.prob > 1 - subRefreshNode.getProb())
-				   this.prob = 1 - subRefreshNode.getProb();
-		   else {//需要重刷
-			   double min = 1;
-			   for (Node each : this.getChildren()) {
-				   if(each.isVisit && 1 - each.getProb() < min)
-					   min = 1 - each.getProb();
+	   if(isThisProbBeOne){
+		   this.prob=1;
+		   this.isRealProb=true;
+	   }
+	   else if(isThisProbBeZero){
+		   this.prob=0;
+		   this.isRealProb=true;
+	   }
+	   else{
+		   if(5*subnodeVisitNum >= 4*subnodeNum){ //有勝率且拜訪次數夠多的subnode過8成
+				   double min = 1;
+				   for (Node each : this.getChildren()) {
+					   if(1 - each.getProb() < min && each.visitNum>=20)
+						   min = 1 - each.getProb();
+				   }
+				   this.prob = min;
 			   }
-			   this.prob = min;
-		   }
-	   else
-		   this.prob = winNum/(double)visitNum;
+		   else
+			   this.prob = estiWinNum/(double)estivisitNum;
+	   }
   }
   
   public List<Node> getChildren() {

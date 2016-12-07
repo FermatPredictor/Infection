@@ -16,7 +16,7 @@ public class BetaCat extends AI{
 	int size;
 	private boolean canMove=true;
 	private char cannotMoveColor=' ';
-	private int simulateNum=2000;
+	private int simulateNum=20000;
 	private int simulateStepNum=30;
 	private int sourceLevel=4;
 	private int[] levelWinProb;
@@ -349,11 +349,13 @@ public class BetaCat extends AI{
 			rand_num = random.nextInt(sum);
 			sum = 0;
 			for (Node each : node.getChildren()) {
-				 sum += each.getScore();
-				 if(sum > rand_num){
-					 n = each;
-					 break;
-				 }
+				if(each.getScore()!=0){
+					 sum += each.getScore();
+					 if(sum > rand_num){
+						 n = each;
+						 break;
+					 }
+				}
 			 }
 		}
 		return n;
@@ -916,12 +918,15 @@ public class BetaCat extends AI{
      public int[] AIaction(char color){
     	 Node root = new Node(null);
     	 int point[]=new int[4];
+    	 int resignPoint[]={size+1,size+1,size+1,size+1};
     	 copyBoard();
     	 char nextColor=color;
     	 expandNode(root,simulateBoard,color);
     	 for(int i=1;i<=simulateNum;i++){
     		 copyBoard();
 	    	 Node play=randomChooseSubNode(root);
+	    	 if(play==null)
+	    		 return resignPoint;
 	    	 play.addVisitNum();
 	    	 int[] p=play.getMove();
 	    	 simulateDoAction(p,nextColor);
@@ -933,7 +938,10 @@ public class BetaCat extends AI{
 	    			 break;
 	    		 }
 	    		 expandNode(play,simulateBoard,color);
-	    		 play=randomChooseSubNode(play);
+	    		 Node choose=randomChooseSubNode(play);
+	    		 if(choose!= null)
+	    			 play=choose;
+	    		 else break;
 	    		 play.addVisitNum();
 		    	 p=play.getMove();
 	    		 simulateDoAction(p,color);
@@ -948,28 +956,35 @@ public class BetaCat extends AI{
 	    		 play.setProb(1);
 	    	 else
 	    		 play.setProb(0);
-	    	 Node temp = play;
 	    	 play = play.getParent();
     		 while(play != null){
-    			 play.refreshWinProb(temp);
     			 if(winNum>0 && play.getColor() == 'b')
     				 play.addWinNum();
     			 else if(winNum<0 && play.getColor() == 'w')
     				 play.addWinNum();
+    			 play.refreshWinProb();
     			 play = play.getParent();
     		 }
 
     	 }
-    	 int max = 0;
+    	 double max = -1;
     	 Node best = null;
     	 for(Node each : root.getChildren()){
     		 int[] a=each.getMove();
     		 for(int x:a)
     			 System.out.print(x+" ");
     		 System.out.print(each.getVisitNum()+" "+each.getProb());
+    		 for(Node sub : each.getChildren()){
+    			 System.out.println();
+    			 System.out.print("  ");
+    			 int[] b=sub.getMove();
+        		 for(int y:b)
+        			 System.out.print(y+" ");
+    			 System.out.print(sub.getVisitNum()+" "+sub.getProb());
+    		 }
     		 System.out.println();
-    		 if(each.getVisitNum() > max){
-    			 max = each.getVisitNum();
+    		 if(each.getProb() > max){
+    			 max = each.getProb();
     			 best = each;
     		 }
     	 }
