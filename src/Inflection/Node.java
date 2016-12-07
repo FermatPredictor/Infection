@@ -92,7 +92,7 @@ public class Node {
 	   boolean isThisProbBeZero=false;
 	   for (Node each : this.getChildren()) {
 		   if(each.isRealProb && each.prob==0){//算勝率時，排除對手勝率=0的點，因為對手不會選那個點
-			   estiWinNum-=each.winNum;
+			   estiWinNum-=each.visitNum;
 			   estivisitNum-=each.visitNum;
 		   }
 		   if(isThisProbBeOne && (!each.isRealProb || each.prob!=0))

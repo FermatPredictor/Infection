@@ -932,6 +932,7 @@ public class BetaCat extends AI{
 	    	 simulateDoAction(p,nextColor);
 	    	 color=changeColor(nextColor);
 	    	 char cannotMoveColor='n';
+	    	 char winColor='n';
 	    	 boolean isBreak=false;//在做randomChooseSubNode的判斷時，如果回傳null，表示對手的勝率全為0，此時break並不做winNum的判斷
 	    	 for(int j=1;j<=simulateStepNum;j++){
 	    		 if(simulateCheckEnding(simulateBoard,color)){
@@ -944,6 +945,7 @@ public class BetaCat extends AI{
 	    			 play=choose;
 	    		 else {
 	    			 isBreak=true;
+	    			 winColor=changeColor(color);
 	    			 break;
 	    		 }
 	    		 play.addVisitNum();
@@ -957,16 +959,16 @@ public class BetaCat extends AI{
 		    		 winNum=countWinNum(simulateBoard, cannotMoveColor);
 		    	 else
 		    		 winNum=simpleCountWinNum(simulateBoard);
-		    	 if((winNum>0 && play.getColor() == 'b') || (winNum<0 && play.getColor() == 'w'))
+		    	 if(winNum>=0)winColor='b';
+		    	 else if(winNum<0)winColor='w';
+		    	 if(play.getColor() == winColor)
 		    		 play.setProb(1);
 		    	 else
 		    		 play.setProb(0);
 	    	 }
 	    	 play = play.getParent();
     		 while(play != null){
-    			 if(winNum>0 && play.getColor() == 'b' && !isBreak)
-    				 play.addWinNum();
-    			 else if(winNum<0 && play.getColor() == 'w' && !isBreak)
+    			 if(play.getColor() == winColor)
     				 play.addWinNum();
     			 play.refreshWinProb();
     			 play = play.getParent();
