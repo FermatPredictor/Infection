@@ -129,7 +129,7 @@ public class ChessBoard extends PApplet{
 		if(!isEnding){
 			if(isWhiteAIOn && nowStep%2==0){
 				isAITurn=true;
-				DoActionForAI(betacat,'w');
+				DoActionForAI(alphacat,'w');
 				isAITurn=false;
 			}
 			else if(isBlackAIOn && nowStep%2==1){

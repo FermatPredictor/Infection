@@ -11,7 +11,9 @@ public class Node {
   private int winNum;
   private char color = ' ';
   public boolean isVisit;
-  public boolean isRealProb;
+  private boolean isBreedStep;
+  private boolean isPerfectStep;
+  private boolean isRealProb;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;
   
@@ -21,6 +23,8 @@ public class Node {
    this.visitNum=0;
    this.winNum=0;
    this.isVisit=false;
+   this.isBreedStep=false;
+   this.isPerfectStep=false;
    this.isRealProb=false;
    this.prob = -1;
   }
@@ -44,6 +48,14 @@ public class Node {
   
   public void setColor(char c) {
 	  this.color = c;
+  }
+  
+  public void markBreedStep() {
+	 this.isBreedStep=true;
+  }
+  
+  public void markPerfectStep() {
+	 this.isPerfectStep=true;
   }
   
   public void setProb(double prob) {
@@ -72,13 +84,17 @@ public class Node {
   }
   
   public int getScore(){
-	  if(!isVisit)return 3;
-	  else if(this.isRealProb && this.prob==1)return 100;
+	  
+	  if(this.isRealProb && this.prob==1)return 100;
 	  else if(this.isRealProb && this.prob==0)return 0;
-	  else if(this.prob>=0.9)return 30;
+	  else if(!isVisit || visitNum<20){
+		  if(isPerfectStep)return 20;
+		  if(isBreedStep)return 10;
+		  else return 5;
+	  }
+	  else if(this.prob>=0.9)return 40;
 	  else if(this.prob>=0.8)return 20;
 	  else if(this.prob>=0.6)return 10;
-	  else if(visitNum<20)return 3;
 	  else if(this.prob>=0.4)return 3;
 	  else return 1;
 	

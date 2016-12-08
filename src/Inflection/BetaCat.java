@@ -16,7 +16,7 @@ public class BetaCat extends AI{
 	int size;
 	private boolean canMove=true;
 	private char cannotMoveColor=' ';
-	private int simulateNum=20000;
+	private int simulateNum=5000;
 	private int simulateStepNum=30;
 	private int sourceLevel=4;
 	private int[] levelWinProb;
@@ -307,6 +307,54 @@ public class BetaCat extends AI{
 		
 	}
 	
+	private void setGoodSteps(char[][] board, Node n){
+		for (Node each : n.getChildren()){
+			boolean isGood = false;
+			boolean canInfect = false;
+			int[] move = each.getMove();
+			int r = move[0], s = move[1], x = move[2], y = move[3];
+			char c = 'n', d = n.getColor();
+			
+			if(n.getColor() == 'w')
+				c = 'b';
+			if(n.getColor() == 'b')
+				c = 'w';
+			
+			for(int i=x-1; i<=x+1; i++)
+				for(int j=y-1; j<=y+1; j++){
+					if(i>0 && i<=size && j>0 && j<=size){
+						if(board[i][j] == c)
+							canInfect = true;
+					}
+				}
+			
+			if(canInfect){
+				if(x-1>0 && y-1>0){
+					if(board[x-1][y-1]!='n' && board[x-1][y]!='n' && board[x][y-1]!='n')
+						if(!(r==x-1&&s==y-1))
+							isGood = true;
+				}
+				else if(x+1<=size && y+1<=size){
+					if(board[x+1][y+1]!='n' && board[x+1][y]!='n' && board[x][y+1]!='n')
+						if(!(r==x+1&&s==y+1))
+							isGood = true;
+				}
+				else if(x-1>0 && y+1<=size){
+					if(board[x-1][y]!='n' && board[x-1][y+1]!='n' && board[x][y+1]!='n')
+						if(!(r==x-1&&s==y+1))
+							isGood = true;
+				}
+				else if(x+1<=size && y-1>0){
+					if(board[x][y-1]!='n' && board[x+1][y-1]!='n' && board[x+1][y]!='n')
+						if(!(r==x+1&&s==y-1))
+							isGood = true;
+				}
+			}
+			if(isGood)
+				each.markPerfectStep();
+		}
+	}
+	
 	//for a non-ending game, count the number of how many stone that black win now
 	private int simpleCountWinNum(char[][] board){
 		 int blackStones=0;
@@ -372,6 +420,7 @@ public class BetaCat extends AI{
 	   	 }
 	   	 return best;
 	}
+	
 	
 	
 	private char changeColor(char color){
@@ -922,6 +971,7 @@ public class BetaCat extends AI{
     	 copyBoard();
     	 char nextColor=color;
     	 expandNode(root,simulateBoard,color);
+    	 setGoodSteps(simulateBoard,root);
     	 for(int i=1;i<=simulateNum;i++){
     		 copyBoard();
 	    	 Node play=randomChooseSubNode(root);
@@ -940,6 +990,7 @@ public class BetaCat extends AI{
 	    			 break;
 	    		 }
 	    		 expandNode(play,simulateBoard,color);
+	    		 setGoodSteps(simulateBoard,play);
 	    		 Node choose=randomChooseSubNode(play);
 	    		 if(choose!= null)
 	    			 play=choose;
@@ -988,14 +1039,14 @@ public class BetaCat extends AI{
     			 int[] b=sub.getMove();
         		 for(int y:b)
         			 System.out.print(y+" ");
-    			 System.out.print(sub.getVisitNum()+" "+sub.isRealProb+" "+sub.getProb());
+    			 System.out.print(sub.getVisitNum()+" "+sub.getProb());
         		 for(Node ssub : sub.getChildren()){
         			 System.out.println();
         			 System.out.print("    ");
         			 int[] c=ssub.getMove();
             		 for(int y:c)
             			 System.out.print(y+" ");
-        			 System.out.print(ssub.getVisitNum()+" "+ssub.isRealProb+" "+ssub.getProb());
+        			 System.out.print(ssub.getVisitNum()+" "+ssub.getProb());
         		 }
     		 }
     		 System.out.println();
