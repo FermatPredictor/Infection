@@ -87,7 +87,7 @@ public class Node {
 	  
 	  if(this.isRealProb && this.prob==1)return 100;
 	  else if(this.isRealProb && this.prob==0)return 0;
-	  else if(!isVisit || visitNum<20){
+	  else if(!isVisit || visitNum<5){
 		  if(isPerfectStep)return 20;
 		  if(isBreedStep)return 10;
 		  else return 5;
@@ -95,6 +95,7 @@ public class Node {
 	  else if(this.prob>=0.9)return 40;
 	  else if(this.prob>=0.8)return 20;
 	  else if(this.prob>=0.6)return 10;
+	  else if(visitNum<20) return 3;
 	  else if(this.prob>=0.4)return 3;
 	  else return 1;
 	
