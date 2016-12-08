@@ -847,9 +847,17 @@ public class ChessBoard extends PApplet{
     public void test(){
     	
     	BetaCat ai=new BetaCat(size,this,this);
-    	//Node root = new Node(null);
-    	//ai.expandNode(root,points,color);
-     	//ai.setGoodSteps(points,root);
+    	Node root = new Node(null);
+    	//ai.setAllJumpMove(points,'w');
+    	/*ai.expandNode(root,points,'b');
+     	ai.setGoodSteps(points,root,'b');
+	   	 for(Node each : root.getChildren()){
+			 int[] a=each.getMove();
+			 for(int x:a)
+				 System.out.print(x+" ");
+			 System.out.print(each.isBreedStep+" "+each.isPerfectStep+" "+each.getProb());
+			 System.out.println();
+		 }*/
     }
     
 

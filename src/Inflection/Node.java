@@ -85,18 +85,22 @@ public class Node {
   
   public int getScore(){
 	  
-	  if(this.isRealProb && this.prob==1)return 100;
+	  if(this.isRealProb && this.prob==1)return 1000;
 	  else if(this.isRealProb && this.prob==0)return 0;
-	  else if(!isVisit || visitNum<5){
-		  if(isPerfectStep)return 20;
-		  if(isBreedStep)return 10;
+	  else if(!isVisit || visitNum<20){
+		  if(isPerfectStep && isBreedStep)return 80;
+		  else if(isPerfectStep)return 50;
+		  else if(isBreedStep)return 20;
 		  else return 5;
 	  }
-	  else if(this.prob>=0.9)return 40;
-	  else if(this.prob>=0.8)return 20;
-	  else if(this.prob>=0.6)return 10;
-	  else if(visitNum<20) return 3;
-	  else if(this.prob>=0.4)return 3;
+	  else if(this.prob>=0.9)return 80;
+	  else if(this.prob>=0.8)return 50;
+	  else if((isPerfectStep || isBreedStep) && this.prob>=0.6) return 50;
+	  else if((isPerfectStep || isBreedStep) && this.prob>=0.5) return 30;
+	  else if(this.prob>=0.7)return 30;
+	  else if(this.prob>=0.6)return 20;
+	  else if(this.prob>=0.5)return 15;
+	  else if(this.prob>=0.4)return 5;
 	  else return 1;
 	
   }

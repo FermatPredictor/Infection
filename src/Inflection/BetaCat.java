@@ -14,26 +14,11 @@ public class BetaCat extends AI{
 	protected PApplet parent;
 	protected ChessBoard board;
 	int size;
-	private boolean canMove=true;
-	private char cannotMoveColor=' ';
-	private int simulateNum=5000;
+	private int simulateNum=10000;
 	private int simulateStepNum=30;
-	private int sourceLevel=4;
-	private int[] levelWinProb;
-	private int nowPosition=0;
-	
-	
-	private int winStoneNum=0; //def:blackStone-whiteStone for ending
-	private int endSourceLevel=11;
-	private int[] levelWinStone;//record most stoneNum of black win in current level.
+
 	
 	private String information="";
-	
-	private int[][] allowedMove;
-	private int[] allowedMoveValue;//0~100, the win probability.  
-	private int[] realAllowedMoveValue;//the ending win number(count as stone)
-	private int value;//the number of win times while ai simulate games many times 
-	private int allowedMoveNum;
 	private char[][] simulateBoard; //b:black; w:white; n:null
 	
 	private int exStepNum=0;
@@ -45,12 +30,7 @@ public class BetaCat extends AI{
 		this.parent=parent;
 		this.board=board;
 		this.size=size;
-		allowedMove=new int[40][4];
-		allowedMoveValue=new int[40];
-		realAllowedMoveValue=new int[40];
 		simulateBoard=new char[size+1][size+1];
-		levelWinProb=new int[sourceLevel];
-		levelWinStone=new int[endSourceLevel];
 	}
 	
 	private int[][] setAllBreedMove(char[][] board, char color){
@@ -133,42 +113,42 @@ public class BetaCat extends AI{
 						a[length][3] = j;
 						length++;
 					}
-					else if(i > 1 && j < size && board[i-1][j+1] == color){
+					if(i > 1 && j < size && board[i-1][j+1] == color){
 						a[length][0] = i-1;
 						a[length][1] = j+1;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(j < size-1 && board[i][j+2] == color){
+					if(j < size-1 && board[i][j+2] == color){
 						a[length][0] = i;
 						a[length][1] = j+2;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(i < size && j < size && board[i+1][j+1] == color){
+					if(i < size && j < size && board[i+1][j+1] == color){
 						a[length][0] = i+1;
 						a[length][1] = j+1;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(i < size-1 && board[i+2][j] == color){
+					if(i < size-1 && board[i+2][j] == color){
 						a[length][0] = i+2;
 						a[length][1] = j;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(i < size && j > 1 && board[i+1][j-1] == color){
+					if(i < size && j > 1 && board[i+1][j-1] == color){
 						a[length][0] = i+1;
 						a[length][1] = j-1;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(j > 2 && board[i][j-2] == color){
+					if(j > 2 && board[i][j-2] == color){
 						a[length][0] = i;
 						a[length][1] = j-2;
 						a[length][2] = i;
@@ -176,7 +156,7 @@ public class BetaCat extends AI{
 						length++;
 						
 					}
-					else if(i > 1 && j > 1 && board[i-1][j-1] == color){
+					if(i > 1 && j > 1 && board[i-1][j-1] == color){
 						a[length][0] = i-1;
 						a[length][1] = j-1;
 						a[length][2] = i;
@@ -219,42 +199,42 @@ public class BetaCat extends AI{
 						a[length][3] = j;
 						length++;
 					}
-					else if(i > 1 && j < size && board[i-1][j+1] == color){
+					if(i > 1 && j < size && board[i-1][j+1] == color){
 						a[length][0] = i-1;
 						a[length][1] = j+1;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(j < size-1 && board[i][j+2] == color){
+					if(j < size-1 && board[i][j+2] == color){
 						a[length][0] = i;
 						a[length][1] = j+2;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(i < size && j < size && board[i+1][j+1] == color){
+					if(i < size && j < size && board[i+1][j+1] == color){
 						a[length][0] = i+1;
 						a[length][1] = j+1;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(i < size-1 && board[i+2][j] == color){
+					if(i < size-1 && board[i+2][j] == color){
 						a[length][0] = i+2;
 						a[length][1] = j;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(i < size && j > 1 && board[i+1][j-1] == color){
+					if(i < size && j > 1 && board[i+1][j-1] == color){
 						a[length][0] = i+1;
 						a[length][1] = j-1;
 						a[length][2] = i;
 						a[length][3] = j;
 						length++;
 					}
-					else if(j > 2 && board[i][j-2] == color){
+					if(j > 2 && board[i][j-2] == color){
 						a[length][0] = i;
 						a[length][1] = j-2;
 						a[length][2] = i;
@@ -262,7 +242,7 @@ public class BetaCat extends AI{
 						length++;
 						
 					}
-					else if(i > 1 && j > 1 && board[i-1][j-1] == color){
+					if(i > 1 && j > 1 && board[i-1][j-1] == color){
 						a[length][0] = i-1;
 						a[length][1] = j-1;
 						a[length][2] = i;
@@ -307,47 +287,48 @@ public class BetaCat extends AI{
 		
 	}
 	
-	private void setGoodSteps(char[][] board, Node n){
+	//c:敵方的棋子，設定在node之下的subnode(敵方)哪些是好步(可形成方塊四)
+	private void setGoodSteps(char[][] board, Node n, char c){
 		for (Node each : n.getChildren()){
 			boolean isGood = false;
 			boolean canInfect = false;
 			int[] move = each.getMove();
 			int r = move[0], s = move[1], x = move[2], y = move[3];
-			char c = 'n', d = n.getColor();
-			
-			if(n.getColor() == 'w')
-				c = 'b';
-			if(n.getColor() == 'b')
-				c = 'w';
 			
 			for(int i=x-1; i<=x+1; i++)
 				for(int j=y-1; j<=y+1; j++){
 					if(i>0 && i<=size && j>0 && j<=size){
-						if(board[i][j] == c)
+						if(board[i][j] == changeColor(c)){
 							canInfect = true;
+							break;
+						}
 					}
 				}
 			
 			if(canInfect){
 				if(x-1>0 && y-1>0){
 					if(board[x-1][y-1]!='n' && board[x-1][y]!='n' && board[x][y-1]!='n')
-						if(!(r==x-1&&s==y-1))
+						if(!(r==x-1&&s==y-1)){
 							isGood = true;
+						}
 				}
-				else if(x+1<=size && y+1<=size){
+				if(x+1<=size && y+1<=size){
 					if(board[x+1][y+1]!='n' && board[x+1][y]!='n' && board[x][y+1]!='n')
-						if(!(r==x+1&&s==y+1))
+						if(!(r==x+1&&s==y+1)){
 							isGood = true;
+						}
 				}
-				else if(x-1>0 && y+1<=size){
+				if(x-1>0 && y+1<=size){
 					if(board[x-1][y]!='n' && board[x-1][y+1]!='n' && board[x][y+1]!='n')
-						if(!(r==x-1&&s==y+1))
+						if(!(r==x-1&&s==y+1)){
 							isGood = true;
+						}
 				}
-				else if(x+1<=size && y-1>0){
+				if(x+1<=size && y-1>0){
 					if(board[x][y-1]!='n' && board[x+1][y-1]!='n' && board[x+1][y]!='n')
-						if(!(r==x+1&&s==y-1))
+						if(!(r==x+1&&s==y-1)){
 							isGood = true;
+						}
 				}
 			}
 			if(isGood)
@@ -372,11 +353,14 @@ public class BetaCat extends AI{
 	
 	private void expandNode(Node node, char[][] board, char nextColor){
 		if(!node.isVisit){
-			int[][] a = setAllJumpMove(board, nextColor);
-			int[][] b = setAllBreedMove(board, nextColor);
+			int[][] a = setAllBreedMove(board, nextColor);
+			int[][] b = setAllJumpMove(board, nextColor);
 			if(a != null){
 				for(int[] y:a)
 					node.addChild(y,nextColor);
+				for(Node each:node.getChildren())
+					each.markBreedStep();
+					
 			}
 			if(b != null){
 				for(int[] y:b)
@@ -491,102 +475,8 @@ public class BetaCat extends AI{
 					for(int j=1; j<=size ;j++)
 						simulateBoard[i][j]=board.points[i][j];
 		 }
-	 
-	 private void copyBoard(char [][] board){
-		 for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++)
-					simulateBoard[i][j]=board[i][j];
-	 }
 	
-	 	
-	 //if ending, make a simple count, "true" for win
-	 private boolean simpleCount(char c){
-		 int blackStones=0;
-		 int whiteStones=0;
-		 
-		 char d=' ';
-		 if(cannotMoveColor=='b')d='w';
-		 else if(cannotMoveColor=='w')d='b';
-		 
-		 if(!canMove){
-			 for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++)
-					if(simulateBoard[i][j]=='n')
-						simulateBoard[i][j]=d;
-		 }
-		 
-		 for(int i=1; i<=size ;i++)
-				for(int j=1; j<=size ;j++){
-					if(simulateBoard[i][j]=='b')
-						blackStones++;
-					else if(simulateBoard[i][j]=='w')
-						whiteStones++;
-				}
-		 
-		 winStoneNum=blackStones-whiteStones;
-		 if(c=='b' && blackStones>=whiteStones)
-			 return true;
-		 else if(c=='w' && whiteStones>=blackStones)
-			 return true;
-		 else return false;
-			
-	}
-	 
-	 private void setAllowedMove(int rx, int ry,int x, int y){
-		 allowedMove[allowedMoveNum][0]=rx;
-		 allowedMove[allowedMoveNum][1]=ry;
-		 allowedMove[allowedMoveNum][2]=x;
-		 allowedMove[allowedMoveNum][3]=y;
-		 allowedMoveNum++;
-	 }
-	 
-	 
-     private void setAllowedMove(int x, int y, char c){
-		 
-		 char d=' ';
-		 if(c=='b')d='w';
-		 else if(c=='w')d='b';
-		 
-		 if(simulateBoard[x][y]=='n'){
-			 
-			 boolean set=false;
-			 for(int i=1; i<=size ;i++)
-					for(int j=1; j<=size ;j++){
-						int distance=Math.abs(i-x)+Math.abs(j-y);
-						if(distance==1 && simulateBoard[i][j]==c && !set){
-							setAllowedMove(size+1,size+1,x,y);
-							set=true;
-						}
-					}
-			 boolean valueJump=false;
-
-			 for(int i=1; i<=size ;i++)
-					for(int j=1; j<=size ;j++){
-						if(Math.abs(i-x)<=1 && Math.abs(j-y)<=1 && simulateBoard[i][j]==d){
-							valueJump=true;
-						}
-					}
-			 if(valueJump){
-				 for(int i=1; i<=size ;i++)
-						for(int j=1; j<=size ;j++){
-							int distance=Math.abs(i-x)+Math.abs(j-y);
-							if(distance==2 && simulateBoard[i][j]==c){
-								setAllowedMove(i,j,x,y);
-							}
-						}
-			 }
-		 }
-		 
-	 }
      
-     
-     private void setAllAllowedMove(char color){
-		 
-     	for(int i=1; i<=size ;i++)
- 			for(int j=1; j<=size ;j++){
- 				setAllowedMove(i,j,color);
- 			}	 
-	 }
 	 
      
      private void printTheBoard(){
@@ -600,234 +490,6 @@ public class BetaCat extends AI{
       	System.out.println();
      }
      
-     private int checkTheResult(int position,int rx, int ry,int x, int y, char color){
-    	 
-    	 char d=' ';
-		 if(color=='b')d='w';
-		 else if(color=='w')d='b';
-		 
-		 if(position<nowPosition)
-			 for(int i=position+1;i<sourceLevel;i++){
-		    		if(color=='b'){
-		    			if(i%2==1)
-		    				levelWinStone[i]=-999;
-		    			if(i%2==0)
-		    				levelWinStone[i]=999;
-		    		}
-		    		else{
-		    			if(i%2==1)
-		    				levelWinStone[i]=999;
-		    			if(i%2==0)
-		    				levelWinStone[i]=-999;
-		    		}
-			 }
-		 nowPosition=position;
-		 
-		 int[][] allowedMove=new int[40][4];
-		 int breedMoveNum=0;
-		 int jumpMoveNum=0;
-		 int allowedMoveNum=0;//breedMoveNum add jumpMoveNum
-		 int result;
-		 char[][] memoryBoard=new char[size+1][size+1];
-		 
-    	 simulateDoAction(rx,ry,x,y,color);
-    	 //System.out.println("position"+position+":"+rx+" "+ry+" "+x+" "+y);
-    	 boolean isEnding=simulateCheckEnding(d);
-    	 if(isEnding){
-    		 simpleCount(d);
-    		 //System.out.println(" result: "+winNum);
-    		 return winStoneNum;
-    	 }
-    	 else if(position==endSourceLevel)
-    		 return 0;
-    	 else{
-    		 for(int i=1; i<=size ;i++)
-    	  		for(int j=1; j<=size ;j++)
-    	  			memoryBoard[i][j]=simulateBoard[i][j];
-    	 }
-    	 
-    	 //setting the (rival's) allowed move from this situation
-    	 for(int i=1; i<=size ;i++)
-  			for(int j=1; j<=size ;j++){
-  				 if(simulateBoard[i][j]=='n'){
-  					 boolean set=false;
-  					 for(int k=1; k<=size ;k++)
-  							for(int l=1; l<=size ;l++){
-  								int distance=Math.abs(k-i)+Math.abs(l-j);
-  								if(distance==1 && simulateBoard[k][l]==d && !set){
-  									allowedMove[allowedMoveNum][0]=size+1;
-  									allowedMove[allowedMoveNum][1]=size+1;
-  									allowedMove[allowedMoveNum][2]=i;
-  									allowedMove[allowedMoveNum][3]=j;
-  									breedMoveNum++;
-  									allowedMoveNum++;
-  									set=true;
-  								}
-  							}
-  				 }
-  			}	
-    	 
-    	 for(int i=1; i<=size ;i++)
-  			for(int j=1; j<=size ;j++){
-  				 if(simulateBoard[i][j]=='n'){
-  					 boolean valueJump=false;
-  					 for(int k=1; k<=size ;k++)
-  							for(int l=1; l<=size ;l++){
-  								if(Math.abs(k-i)<=1 && Math.abs(l-j)<=1 && simulateBoard[k][l]==color){
-  									valueJump=true;
-  								}
-  							}
-  					 if(valueJump){
-  						 for(int k=1; k<=size ;k++)
-  								for(int l=1; l<=size ;l++){
-  									int distance=Math.abs(k-i)+Math.abs(l-j);
-  									if(distance==2 && simulateBoard[k][l]==d){
-  	  									allowedMove[allowedMoveNum][0]=k;
-  	  									allowedMove[allowedMoveNum][1]=l;
-  	  									allowedMove[allowedMoveNum][2]=i;
-  	  									allowedMove[allowedMoveNum][3]=j;
-  	  								    jumpMoveNum++;
-  	  									allowedMoveNum++;
-  									}
-  								}
-  					 }
-  				 }
-  			}
-    	 
-    	 
-    	 if(allowedMoveNum==1)
-    		 return checkTheResult(position+1,allowedMove[0][0],allowedMove[0][1],allowedMove[0][2],allowedMove[0][3],d);
-    	 else{
-    		 result=checkTheResult(position+1,allowedMove[0][0],allowedMove[0][1],allowedMove[0][2],allowedMove[0][3],d);
-    		 for(int i=1;i<breedMoveNum;i++){
-        		 for(int j=1; j<=size ;j++)
-         	  		for(int k=1; k<=size ;k++)
-         	  			simulateBoard[j][k]=memoryBoard[j][k];
-        		 int r=checkTheResult(position+1,allowedMove[i][0],allowedMove[i][1],allowedMove[i][2],allowedMove[i][3],d);
-        		 if(d=='w'){
-        			 if(r<result)
-            			 result=r;
-        		 }
-        		 else if(d=='b'){
-        			 if(r>result)
-            			 result=r;
-        		 }
-        		 
-        		 if(color=='b'){
-        			 if(result<levelWinStone[position])
-        				 return result;
-        		 }
-        		 else if(color=='w'){
-        			 if(result>levelWinStone[position])
-        				 return result;
-        		 }
-        		 
-        	 }
-    		 if((d=='w' && result<0)||(d=='b' && result>0)){
-    			 if(color=='b'){
-    				 if(result>levelWinStone[position])
-    					 levelWinStone[position]=result;
-    			 }
-    			 else if(color=='w'){
-    				 if(result<levelWinStone[position])
-    					 levelWinStone[position]=result;
-    			 }
-    			 return result;
-    		 }
-    		 else{
-    			 for(int i=breedMoveNum;i<allowedMoveNum;i++){
-            		 for(int j=1; j<=size ;j++)
-             	  		for(int k=1; k<=size ;k++)
-             	  			simulateBoard[j][k]=memoryBoard[j][k];
-            		 int r=checkTheResult(position+1,allowedMove[i][0],allowedMove[i][1],allowedMove[i][2],allowedMove[i][3],d);
-            		 if(d=='w'){
-            			 if(r<result)
-                			 result=r;
-            		 }
-            		 else if(d=='b'){
-            			 if(r>result)
-                			 result=r;
-            		 }	 
-            	 } 
-    			 
-    			 if(color=='b'){
-    				 if(result>levelWinStone[position])
-    					 levelWinStone[position]=result;
-    			 }
-    			 else if(color=='w'){
-    				 if(result<levelWinStone[position])
-    					 levelWinStone[position]=result;
-    			 }
-    			 return result;
-    		 }
-        	 
-    	 }
-    	 
-     }
-     
-     private int[] endingGameMode(char color){
-    	 
-    	 char d=' ';
-		 if(color=='b')d='w';
-		 else if(color=='w')d='b';
-		 
-    	 int point[]=new int[4];
-    	 int choose=0;
-    	 
-    	 copyBoard();
-    	 allowedMoveNum=0;
-    	 setAllAllowedMove(color);
-    	 for(int i=0; i<40;i++)
-    		 realAllowedMoveValue[i]=0;
-    	 for(int i=0; i<allowedMoveNum ;i++){
-    		 copyBoard();
-    		 realAllowedMoveValue[i]=checkTheResult(1,allowedMove[i][0],allowedMove[i][1],allowedMove[i][2],allowedMove[i][3],color);
-    		 if(color=='w')
-    			 realAllowedMoveValue[i]*=(-1);
-    	 }
-
-     	point[0]=allowedMove[choose][0];
- 		point[1]=allowedMove[choose][1];
- 		point[2]=allowedMove[choose][2];
- 		point[3]=allowedMove[choose][3];
- 		
- 		for(int i=0; i<allowedMoveNum ;i++){
- 				if(realAllowedMoveValue[i]>realAllowedMoveValue[choose]){
- 					choose=i;
- 					point[0]=allowedMove[i][0];
- 					point[1]=allowedMove[i][1];
- 					point[2]=allowedMove[i][2];
- 					point[3]=allowedMove[i][3];
- 				}
- 				//System.out.println(i+" "+allowedMove[i][0]+" "+allowedMove[i][1]+" "+allowedMove[i][2]+" "+allowedMove[i][3]+" (re)"+realAllowedMoveValue[i]);
- 			}
- 		//System.out.println("");
- 		
-
- 		
- 		//if ai can't compute the result precisely, then random choose one
- 		if(realAllowedMoveValue[choose]==0){
- 			int randomChoose[][]=new int[40][4];
- 			int randomChooseNum=0;
- 			for(int i=0; i<allowedMoveNum ;i++){
- 				if(realAllowedMoveValue[i]==0){
- 					randomChoose[randomChooseNum][0]=allowedMove[i][0];
- 					randomChoose[randomChooseNum][1]=allowedMove[i][1];
- 					randomChoose[randomChooseNum][2]=allowedMove[i][2];
- 					randomChoose[randomChooseNum][3]=allowedMove[i][3];
- 					randomChooseNum++;
- 				}
- 			}
- 			Random ran=new Random();
- 			choose=ran.nextInt(randomChooseNum);
- 			point[0]=randomChoose[choose][0];
- 	 		point[1]=randomChoose[choose][1];
- 	 		point[2]=randomChoose[choose][2];
- 	 		point[3]=randomChoose[choose][3];
- 		}
- 		
- 		return point;
-     }
      
      //find the good step from human_entered
      private void lookingSpecial(char color){
@@ -971,7 +633,7 @@ public class BetaCat extends AI{
     	 copyBoard();
     	 char nextColor=color;
     	 expandNode(root,simulateBoard,color);
-    	 setGoodSteps(simulateBoard,root);
+    	 setGoodSteps(simulateBoard,root,color);
     	 for(int i=1;i<=simulateNum;i++){
     		 copyBoard();
 	    	 Node play=randomChooseSubNode(root);
@@ -990,7 +652,7 @@ public class BetaCat extends AI{
 	    			 break;
 	    		 }
 	    		 expandNode(play,simulateBoard,color);
-	    		 setGoodSteps(simulateBoard,play);
+	    		 setGoodSteps(simulateBoard,play,color);
 	    		 Node choose=randomChooseSubNode(play);
 	    		 if(choose!= null)
 	    			 play=choose;
