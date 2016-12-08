@@ -688,6 +688,13 @@ public class BetaCat extends AI{
     		 }
 
     	 }
+    	 
+    	 //此為手動調整的部分，因為breed和perfect是兩種好步，所以勝率自動調高以傾向選它;如要選jump則必須勝率夠好才選
+    	 for(Node each : root.getChildren()){
+    		 if((each.isBreed()||each.isPerfect()) && each.getProb()>0)
+    			 each.addProb(0.05);
+    	 }
+    	 
     	 double max = -1;
     	 Node best = null;
     	 for(Node each : root.getChildren()){
@@ -702,14 +709,14 @@ public class BetaCat extends AI{
         		 for(int y:b)
         			 System.out.print(y+" ");
     			 System.out.print(sub.getVisitNum()+" "+sub.getProb());
-        		 for(Node ssub : sub.getChildren()){
+        		 /*for(Node ssub : sub.getChildren()){
         			 System.out.println();
         			 System.out.print("    ");
         			 int[] c=ssub.getMove();
             		 for(int y:c)
             			 System.out.print(y+" ");
         			 System.out.print(ssub.getVisitNum()+" "+ssub.getProb());
-        		 }
+        		 }*/
     		 }
     		 System.out.println();
     		 if(each.getProb() > max){

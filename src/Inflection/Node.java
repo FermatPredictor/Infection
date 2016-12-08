@@ -79,6 +79,10 @@ public class Node {
 	   return this.prob;
  }
   
+  public void addProb(double p) {
+	   this.prob+=p;
+}
+  
   public int getVisitNum() {
 	   return visitNum;
   }
@@ -148,6 +152,16 @@ public class Node {
 			   else this.prob =-1;
 		   }
 	   }
+  }
+  
+  public boolean isBreed(){
+	  if(this.isBreedStep)return true;
+	  else return false;
+  }
+  
+  public boolean isPerfect(){
+	  if(this.isPerfectStep)return true;
+	  else return false;
   }
   
   public List<Node> getChildren() {
