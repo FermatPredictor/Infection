@@ -11,7 +11,6 @@ public class Node {
   private int winNum;
   private char color = ' ';
   public boolean isVisit;
-  private int priority;
   private boolean isBreedStep;
   private boolean isPerfectStep;
   private boolean isAllInfectStep;
@@ -27,7 +26,6 @@ public class Node {
    this.visitNum=0;
    this.winNum=0;
    this.isVisit=false;
-   this.priority=0;
    this.isBreedStep=false;
    this.isPerfectStep=false;
    this.isAllInfectStep=false;
@@ -181,7 +179,12 @@ public class Node {
   
   public int priority(){
 	  
-	  
+	  if(this.isAllInfectStep)return 6;
+	  else if(this.isNearAllInfectStep)return 5;
+	  else if(this.isPerfectStep && this.isBreedStep)return 4;
+	  else if(this.isPerfectStep)return 3;
+	  else if(this.isInfectStep && this.isBreedStep)return 2;
+	  else return 1;
 	
   }
   
