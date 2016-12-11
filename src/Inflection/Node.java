@@ -11,8 +11,12 @@ public class Node {
   private int winNum;
   private char color = ' ';
   public boolean isVisit;
+  private int priority;
   private boolean isBreedStep;
   private boolean isPerfectStep;
+  private boolean isAllInfectStep;
+  private boolean isNearAllInfectStep;
+  private boolean isInfectStep;
   private boolean isRealProb;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;
@@ -23,8 +27,12 @@ public class Node {
    this.visitNum=0;
    this.winNum=0;
    this.isVisit=false;
+   this.priority=0;
    this.isBreedStep=false;
    this.isPerfectStep=false;
+   this.isAllInfectStep=false;
+   this.isNearAllInfectStep=false;
+   this.isInfectStep=false;
    this.isRealProb=false;
    this.prob = -1;
   }
@@ -58,6 +66,18 @@ public class Node {
 	 this.isPerfectStep=true;
   }
   
+  public void markAllInfectStep() {
+	 this.isAllInfectStep=true;
+  }
+  
+  public void markNearAllInfectStep() {
+	 this.isNearAllInfectStep=true;
+  }
+  
+  public void markInfectStep() {
+	 this.isInfectStep=true;
+  }
+  
   public void setProb(double prob) {
 	  this.prob = prob;
 	  this.isRealProb=true;
@@ -89,21 +109,21 @@ public class Node {
   
   public int getScore(){
 	  
-	  if(this.isRealProb && this.prob==1)return 1000;
+	  if(this.isRealProb && this.prob==1)return 10000;
 	  else if(this.isRealProb && this.prob==0)return 0;
+	  else if(isAllInfectStep)return 10000;
 	  else if(!isVisit || visitNum<20){
-		  if(isPerfectStep && isBreedStep)return 80;
-		  else if(isPerfectStep)return 50;
-		  else if(isBreedStep)return 20;
-		  else return 5;
+		  if(this.isNearAllInfectStep)return 300;
+		  else if(isPerfectStep && isBreedStep)return 80;
+		  else if(isPerfectStep)return 55;
+		  else if(isInfectStep && isBreedStep)return 30;
+		  else return 15;
 	  }
-	  else if(this.prob>=0.9)return 80;
-	  else if(this.prob>=0.8)return 50;
-	  else if((isPerfectStep || isBreedStep) && this.prob>=0.6) return 50;
-	  else if((isPerfectStep || isBreedStep) && this.prob>=0.5) return 30;
-	  else if(this.prob>=0.7)return 30;
-	  else if(this.prob>=0.6)return 20;
-	  else if(this.prob>=0.5)return 15;
+	  else if(this.prob>=0.9)return 300;
+	  else if(this.prob>=0.8)return 200;
+	  else if(this.prob>=0.7)return 50;
+	  else if(this.prob>=0.6)return 30;
+	  else if(this.prob>=0.5)return 10;
 	  else if(this.prob>=0.4)return 5;
 	  else return 1;
 	
@@ -147,11 +167,22 @@ public class Node {
 			   }
 		   else
 		   {
+			   double lowBound = 1, average=-1;
+			   for (Node each : this.getChildren()) {
+				   if(1 - each.getProb() < lowBound && each.visitNum>=100)
+					   lowBound = 1 - each.getProb();
+			   }
 			   if(estivisitNum!=0)//有可能因為排除對手勝率=0的點，使得estivisitNum變成0
-				   this.prob = estiWinNum/(double)estivisitNum;
-			   else this.prob =-1;
+				   average = estiWinNum/(double)estivisitNum;
+			   this.prob =Math.min(lowBound, average);
 		   }
 	   }
+  }
+  
+  public int priority(){
+	  
+	  
+	
   }
   
   public boolean isBreed(){

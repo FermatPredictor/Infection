@@ -287,7 +287,7 @@ public class BetaCat extends AI{
 		
 	}
 	
-	//c:敵方的棋子，設定在node之下的subnode(敵方)哪些是好步(可形成方塊四)
+	//c:敵方的棋子，設定在node之下的subnode(敵方)哪些是好步(可形成方塊四(perfect), 可感染(infect), 可全滅敵方(allInfect),nearAllInfect)
 	private void setGoodSteps(char[][] board, Node n, char c){
 		for (Node each : n.getChildren()){
 			boolean isGood = false;
@@ -300,12 +300,28 @@ public class BetaCat extends AI{
 					if(i>0 && i<=size && j>0 && j<=size){
 						if(board[i][j] == changeColor(c)){
 							canInfect = true;
+							each.markInfectStep();
 							break;
 						}
 					}
 				}
 			
 			if(canInfect){
+				
+				int liveStones=0;
+				for(int i=1; i<=size; i++)
+					for(int j=1; j<=size; j++){
+						if(liveStones>2)break;
+						if(Math.abs(x-i)>1 || Math.abs(y-j)>1){
+							if(board[i][j] == changeColor(c)){
+								liveStones++;
+							}
+						}
+					}
+				
+				if(liveStones==0)each.markAllInfectStep();
+				else if(liveStones<=2)each.markNearAllInfectStep();
+				
 				if(x-1>0 && y-1>0){
 					if(board[x-1][y-1]!='n' && board[x-1][y]!='n' && board[x][y-1]!='n')
 						if(!(r==x-1&&s==y-1)){
@@ -330,9 +346,10 @@ public class BetaCat extends AI{
 							isGood = true;
 						}
 				}
+				if(isGood)
+					each.markPerfectStep();
 			}
-			if(isGood)
-				each.markPerfectStep();
+			
 		}
 	}
 	
@@ -393,8 +410,8 @@ public class BetaCat extends AI{
 		return n;
 	}
 	
-	private Node chooseHighWinProbSubNode(Node node){
-		 double max = 0;
+	private Node chooseHighPrioritySubNode(Node node){
+		 /*double max = 0;
    	     Node best = null;
 	   	 for(Node each : node.getChildren()){
 	   		 if(each.getProb() > max){
@@ -402,7 +419,7 @@ public class BetaCat extends AI{
 	   			 best = each;
 	   		 }
 	   	 }
-	   	 return best;
+	   	 return best;*/
 	}
 	
 	
@@ -687,12 +704,6 @@ public class BetaCat extends AI{
     			 play = play.getParent();
     		 }
 
-    	 }
-    	 
-    	 //此為手動調整的部分，因為breed和perfect是兩種好步，所以勝率自動調高以傾向選它;如要選jump則必須勝率夠好才選
-    	 for(Node each : root.getChildren()){
-    		 if((each.isBreed()||each.isPerfect()) && each.getProb()>0)
-    			 each.addProb(0.05);
     	 }
     	 
     	 double max = -1;
