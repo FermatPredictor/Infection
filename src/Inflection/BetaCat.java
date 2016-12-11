@@ -420,6 +420,31 @@ public class BetaCat extends AI{
 	   		 }
 	   	 }
 	   	 return best;*/
+		int priorityMax = 1;
+		for(Node each : node.getChildren()){
+			if(each.priority() > priorityMax)
+				priorityMax = each.priority();
+		}
+		
+		int num = 0, rand_num;
+		int n = node.getChildren().size();
+		for(Node each : node.getChildren()){
+			if(each.priority() == priorityMax)
+				num++;
+		}
+		Random random = new Random();
+		rand_num = random.nextInt(num);
+		
+		for(Node each : node.getChildren()){
+			if(each.priority() == priorityMax){
+				if(rand_num == 0)
+					return each;
+				else{
+					rand_num--;
+				}
+			}
+		}
+		return null;
 	}
 	
 	
