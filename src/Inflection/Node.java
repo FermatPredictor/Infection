@@ -15,7 +15,7 @@ public class Node {
   private boolean isPerfectStep;
   private boolean isAllInfectStep;
   private boolean isNearAllInfectStep;
-  private boolean isInfectStep;
+  private boolean isManyInfectStep;
   private boolean isRealProb;
   private final List<Node> children = new ArrayList<>();
   private final Node parent;
@@ -30,7 +30,7 @@ public class Node {
    this.isPerfectStep=false;
    this.isAllInfectStep=false;
    this.isNearAllInfectStep=false;
-   this.isInfectStep=false;
+   this.isManyInfectStep=false;
    this.isRealProb=false;
    this.prob = -1;
   }
@@ -72,8 +72,8 @@ public class Node {
 	 this.isNearAllInfectStep=true;
   }
   
-  public void markInfectStep() {
-	 this.isInfectStep=true;
+  public void markManyInfectStep() {
+	 this.isManyInfectStep=true;
   }
   
   public void setProb(double prob) {
@@ -114,7 +114,7 @@ public class Node {
 		  if(this.isNearAllInfectStep)return 300;
 		  else if(isPerfectStep && isBreedStep)return 80;
 		  else if(isPerfectStep)return 55;
-		  else if(isInfectStep && isBreedStep)return 30;
+		  else if(isManyInfectStep)return 30;
 		  else return 15;
 	  }
 	  else if(this.prob>=0.9)return 300;
@@ -183,9 +183,43 @@ public class Node {
 	  else if(this.isNearAllInfectStep)return 5;
 	  else if(this.isPerfectStep && this.isBreedStep)return 4;
 	  else if(this.isPerfectStep)return 3;
-	  else if(this.isInfectStep && this.isBreedStep)return 2;
+	  else if(this.isManyInfectStep)return 2;
 	  else return 1;
 	
+  }
+  
+  public boolean Standard(){
+	  
+	  if(this.isRealProb)
+		  if(this.prob==0)return false;
+	  
+	  if(this.visitNum>=1000){
+		  if(prob>=0.6+(5-this.priority())*0.05)return true;
+		  else return false;
+	  }
+	  if(this.visitNum>=500){
+		  if(prob>=0.5+(5-this.priority())*0.05)return true;
+		  else return false;
+	  }
+	  else if(this.visitNum>=200){
+		  if(prob>=0.4+(5-this.priority())*0.05)return true;
+		  else return false;
+	  }
+	  else if(this.visitNum>=100){
+		  if(prob>=0.35+(5-this.priority())*0.05)return true;
+		  else return false;
+	  }
+	  else if(this.visitNum>=50){
+		  if(prob>=0.2+(5-this.priority())*0.05)return true;
+		  else return false;
+	  }
+	  else if(this.visitNum>=20){
+		  if(prob>=0.1+(5-this.priority())*0.05)return true;
+		  else return false;
+	  }
+	  else return true;
+
+	  
   }
   
   public boolean isBreed(){

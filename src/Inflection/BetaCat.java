@@ -292,6 +292,7 @@ public class BetaCat extends AI{
 		for (Node each : n.getChildren()){
 			boolean isGood = false;
 			boolean canInfect = false;
+			int infectStones=0;
 			int[] move = each.getMove();
 			int r = move[0], s = move[1], x = move[2], y = move[3];
 			
@@ -300,18 +301,21 @@ public class BetaCat extends AI{
 					if(i>0 && i<=size && j>0 && j<=size){
 						if(board[i][j] == changeColor(c)){
 							canInfect = true;
-							each.markInfectStep();
-							break;
+							infectStones++;	
 						}
 					}
 				}
 			
+			if(infectStones>=3)
+				each.markManyInfectStep();
+			
 			if(canInfect){
 				
 				int liveStones=0;
+				int emptyPoints=0;
 				for(int i=1; i<=size; i++)
 					for(int j=1; j<=size; j++){
-						if(liveStones>2)break;
+						if(board[i][j] =='n')emptyPoints++;
 						if(Math.abs(x-i)>1 || Math.abs(y-j)>1){
 							if(board[i][j] == changeColor(c)){
 								liveStones++;
@@ -320,7 +324,7 @@ public class BetaCat extends AI{
 					}
 				
 				if(liveStones==0)each.markAllInfectStep();
-				else if(liveStones<=2)each.markNearAllInfectStep();
+				else if(emptyPoints<=12 && liveStones<=2)each.markNearAllInfectStep();
 				
 				if(x-1>0 && y-1>0){
 					if(board[x-1][y-1]!='n' && board[x-1][y]!='n' && board[x][y-1]!='n')
@@ -411,37 +415,34 @@ public class BetaCat extends AI{
 	}
 	
 	private Node chooseHighPrioritySubNode(Node node){
-		 /*double max = 0;
-   	     Node best = null;
-	   	 for(Node each : node.getChildren()){
-	   		 if(each.getProb() > max){
-	   			 max = each.getProb();
-	   			 best = each;
-	   		 }
-	   	 }
-	   	 return best;*/
+
 		int priorityMax = 1;
 		for(Node each : node.getChildren()){
 			if(each.priority() > priorityMax)
-				priorityMax = each.priority();
+				if(each.Standard())
+					priorityMax = each.priority();
 		}
 		
 		int num = 0, rand_num;
-		int n = node.getChildren().size();
 		for(Node each : node.getChildren()){
 			if(each.priority() == priorityMax)
-				num++;
+				if(each.Standard())
+					num++;
 		}
+		
+		if(num==0)return randomChooseSubNode(node);
+		
 		Random random = new Random();
 		rand_num = random.nextInt(num);
 		
 		for(Node each : node.getChildren()){
-			if(each.priority() == priorityMax){
-				if(rand_num == 0)
-					return each;
-				else{
-					rand_num--;
-				}
+			if(each.priority() == priorityMax)
+				if(each.Standard()){
+					if(rand_num == 0)
+						return each;
+					else{
+						rand_num--;
+					}
 			}
 		}
 		return null;
@@ -678,7 +679,7 @@ public class BetaCat extends AI{
     	 setGoodSteps(simulateBoard,root,color);
     	 for(int i=1;i<=simulateNum;i++){
     		 copyBoard();
-	    	 Node play=randomChooseSubNode(root);
+	    	 Node play=chooseHighPrioritySubNode(root);
 	    	 if(play==null)
 	    		 return resignPoint;
 	    	 play.addVisitNum();
@@ -695,7 +696,7 @@ public class BetaCat extends AI{
 	    		 }
 	    		 expandNode(play,simulateBoard,color);
 	    		 setGoodSteps(simulateBoard,play,color);
-	    		 Node choose=randomChooseSubNode(play);
+	    		 Node choose=chooseHighPrioritySubNode(play);
 	    		 if(choose!= null)
 	    			 play=choose;
 	    		 else {
@@ -731,7 +732,7 @@ public class BetaCat extends AI{
 
     	 }
     	 
-    	 double max = -1;
+    	 int max =0;
     	 Node best = null;
     	 for(Node each : root.getChildren()){
     		 int[] a=each.getMove();
@@ -755,8 +756,8 @@ public class BetaCat extends AI{
         		 }*/
     		 }
     		 System.out.println();
-    		 if(each.getProb() > max){
-    			 max = each.getProb();
+    		 if(each.getVisitNum()> max){
+    			 max = each.getVisitNum();
     			 best = each;
     		 }
     	 }
