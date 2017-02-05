@@ -15,17 +15,11 @@ public class BetaCat extends AI{
 	protected ChessBoard board;
 	int size;
 	private int simulateNum=10000;
-	private int simulateStepNum=30;
+	private int simulateStepNum=20;
 
-	
 	private String information="";
 	private char[][] simulateBoard; //b:black; w:white; n:null
 	
-	private int exStepNum=0;
-	private int exStep[][]=new int[40][4];
-    boolean useSpecial=false;
-
-
 	public BetaCat(int size, PApplet parent, ChessBoard board){
 		this.parent=parent;
 		this.board=board;
@@ -534,81 +528,8 @@ public class BetaCat extends AI{
      }
      
      
-     //find the good step from human_entered
-     private void lookingSpecial(char color){
-    	 
-    	 exStepNum=0;
-    	 
-    	 information=board.information.substring(1);
-    	 int inflen=information.length();
-    	 ArrayList<String> recordList = new ArrayList<String>();
-
- 		try{
-			FileReader fr = new FileReader("sz5_special_"+color+".txt");
-			BufferedReader br = new BufferedReader(fr);
-			while(br.ready()) {
-				//System.out.print((char)br.read());
-				String record = br.readLine();
-				int sign=record.indexOf(';');
-				if(sign!=-1)
-					record=record.substring(sign);
-				if(record.startsWith(information)){
-					if(record.substring(inflen).startsWith(";"))
-						recordList.add(record.substring(inflen));
-				}
-					
-			}
-			fr.close();
-			
-			if(!recordList.isEmpty()){
-				
-				//System.out.println(recordList.get(0));
-				int sz=recordList.size();
-				int now=0;
-				
-				int rx=recordList.get(0).charAt(3)-'a'+1;
-				int ry=recordList.get(0).charAt(4)-'a'+1;
-				int x=recordList.get(0).charAt(8)-'a'+1;
-				int y=recordList.get(0).charAt(9)-'a'+1;
-				exStep[now][0]=rx;
-				exStep[now][1]=ry;
-				exStep[now][2]=x;
-				exStep[now][3]=y;
-				
-				//System.out.println(0+" "+exStep[0][0]+" "+exStep[0][1]+" "+exStep[0][2]+" "+exStep[0][3]);
-				
-				exStepNum++;
-
-				
-				for(int i=1; i<sz ;i++){
-	                
-					rx=recordList.get(i).charAt(3)-'a'+1;
-				    ry=recordList.get(i).charAt(4)-'a'+1;
-					x=recordList.get(i).charAt(8)-'a'+1;
-					y=recordList.get(i).charAt(9)-'a'+1;
-					if(exStep[now][0]==rx && exStep[now][1]==ry && exStep[now][2]==x && exStep[now][3]==y){
-						;
-					}
-					else{
-						now++;
-						exStepNum++;
-						exStep[now][0]=rx;
-						exStep[now][1]=ry;
-						exStep[now][2]=x;
-						exStep[now][3]=y;
-					}
-					//System.out.println(recordList.get(i));
-					//System.out.println(now+" "+exStep[now][0]+" "+exStep[now][1]+" "+exStep[now][2]+" "+exStep[now][3]);
-				}
-			}
-
-		} catch (IOException e) {
-		} 
-     }
      
-     
-     
-     private void RecordTheGame(char winnerColor){
+     /*private void RecordTheGame(char winnerColor){
     	 
     	 ArrayList<String> recordList = new ArrayList<String>();
   
@@ -665,7 +586,7 @@ public class BetaCat extends AI{
  			//System.out.println(information);
  		} catch (IOException e) {
  		}  	
-     }
+     }*/
      
 	 
 	 //this will decide a coordinate that AI want to play.

@@ -25,7 +25,6 @@ public class ChessBoard extends PApplet{
 	public PImage whiteCat1, whiteCat2, blackCat1, blackCat2;
 	private int size=5;
 	private float unit=(float)chessBoardWidth/size;
-	private int nowStep=1;
 	public char[][] points=new char[size+1][size+1]; //b:black; w:white; n:null; j:jump
 	private boolean canPlaceChess=true;
 	private boolean isAllowPoint=true;
@@ -36,6 +35,7 @@ public class ChessBoard extends PApplet{
 	private int whiteStones=0;
 	String information="";
 	String symmetryinformation="";
+	private int UndoSteps;
 	private boolean isWhiteAIOn=false;
 	private boolean isBlackAIOn=false;
 	private boolean isAITurn=false;
@@ -46,6 +46,8 @@ public class ChessBoard extends PApplet{
 	private Zero zero;
 	private AlphaCat alphacat;
 	private BetaCat betacat;
+	private GammaCat gammacat;
+	private Tree tree;
 	private Predictor predictor;
 	public int lastMove[]=new int[2];
 	
@@ -94,16 +96,19 @@ public class ChessBoard extends PApplet{
         zero=new Zero(size,this,this);
         alphacat=new AlphaCat(size,this,this);
         betacat=new BetaCat(size,this,this);
+        gammacat=new GammaCat(size,this,this);
+        tree=new Tree(size,this,this);
         predictor=new Predictor(size,this,this);
 		
+        UndoSteps=0;
 		initial();
 		loading();
 		
 		//button
-		cp5.addButton("undo").setLabel("Undo")		
+		cp5.addButton("back").setLabel("Back")		
                              .setPosition(700,50)
                              .setSize(100, 50);
-		cp5.addButton("resign").setLabel("Resign")
+		cp5.addButton("next").setLabel("Next")
                                .setPosition(810,50)
                                .setSize(100, 50);
 		cp5.addButton("blackCatOn").setLabel("Black Cat")
@@ -115,9 +120,9 @@ public class ChessBoard extends PApplet{
 		cp5.addButton("newGame").setLabel("NewGame")
                                 .setPosition(700,120)
                                 .setSize(200, 50);
-		cp5.addButton("test").setLabel("Test")
-		                        .setPosition(920,120)
-		                        .setSize(200, 50);
+		cp5.addButton("resign").setLabel("Resign")
+                               .setPosition(920,120)
+                               .setSize(100, 50);
 		
 		minim = new Minim(this);
 		effect[0]=minim.loadFile("Stone.wav");
@@ -125,23 +130,27 @@ public class ChessBoard extends PApplet{
 	
 	public void draw() 
 	{   
-		
-		if(!isEnding){
-			if(isWhiteAIOn && nowStep%2==0){
+		int steps=countSteps();
+		if(!isEnding && UndoSteps==0){
+			if(isWhiteAIOn && steps%2==0){
 				isAITurn=true;
-				DoActionForAI(alphacat,'w');
+				DoActionForAI(tree,'w');
 				isAITurn=false;
 			}
-			else if(isBlackAIOn && nowStep%2==1){
+			else if(isBlackAIOn && steps%2==1){
 				isAITurn=true;
-				DoActionForAI(betacat,'b');
+				DoActionForAI(tree,'b');
 				isAITurn=false;
 			}
 			if(mousePressed && canPlaceChess && !isAITurn ){
 				DoAction();
 				canPlaceChess=false;
-				isClicked = true;
+				//isClicked = true;
 			}
+		}
+		else if(UndoSteps>0 && mousePressed){
+			DoAction2();
+			mousePressed=false;
 		}
 		
 		
@@ -179,11 +188,11 @@ public class ChessBoard extends PApplet{
 		}
 		
 		//character for black and white
-		if(nowStep%2==1){
+		if(steps%2==1){
 			image(blackCat2,700,200);
 			image(whiteCat1,900,200);
 		}
-		else if(nowStep%2==0){
+		else if(steps%2==0){
 			image(blackCat1,700,200);
 			image(whiteCat2,900,200);
 		}
@@ -199,9 +208,9 @@ public class ChessBoard extends PApplet{
 		int y=getCoordinate()[1];
 		
 		if(!isPrepareJump){
-			if(nowStep%2==1)
+			if(steps%2==1)
 				isAllowPoint=judgeAllowPoint(x,y,'b');
-			else if(nowStep%2==0)
+			else if(steps%2==0)
 				isAllowPoint=judgeAllowPoint(x,y,'w');
 			removeJumpArea();
 		}
@@ -209,12 +218,12 @@ public class ChessBoard extends PApplet{
 			setAllowJumpArea(PreparedJumpPoints[0],PreparedJumpPoints[1]);
 
 		
-		if(x>0 && y>0 && isAllowPoint && points[x][y]=='n' && !isPrepareJump){
-			if(nowStep%2==1){
+		if(x>0 && y>0 && isAllowPoint && points[x][y]=='n' && !isPrepareJump && UndoSteps==0){
+			if(steps%2==1){
 				fill(0);
 				ellipse((chessX+unit/2)+(getCoordinate()[0]-1)*unit, (chessY+unit/2)+(getCoordinate()[1]-1)*unit,unit*(float)0.8,unit*(float)0.8);
 			}
-			else if(nowStep%2==0){
+			else if(steps%2==0){
 				fill(255);
 				ellipse((chessX+unit/2)+(getCoordinate()[0]-1)*unit, (chessY+unit/2)+(getCoordinate()[1]-1)*unit,unit*(float)0.8,unit*(float)0.8);
 			}
@@ -305,8 +314,9 @@ public class ChessBoard extends PApplet{
 		boolean isFullBoard=true;
 		int winPoints;
 		char c=' ';
-		if(nowStep%2==1)c='b';
-		else if(nowStep%2==0)c='w';
+		int steps=countSteps();
+		if(steps%2==1)c='b';
+		else if(steps%2==0)c='w';
 		
 		if(blackStones==0){
     		JOptionPane.showMessageDialog(null,"White infect all black stones.");
@@ -391,14 +401,12 @@ public class ChessBoard extends PApplet{
 					char ch_rx=(char)((int)'a'+size);
 					char ch_ry=(char)((int)'a'+size);
 					
-					if(nowStep%2==1){
+					if(steps%2==1){
 						information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
 			    	}
-					else if(nowStep%2==0){
+					else if(steps%2==0){
 			    		information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
 			    	}
-					
-					nowStep++;
 				}
 		}
 	}
@@ -521,12 +529,12 @@ public class ChessBoard extends PApplet{
 
    
 	//judge in function "draw", if mousePressed, placed or move the stone.(released then can placed again)
-    public void DoAction(){
-    	
+     private void DoAction(){
+    	int steps=countSteps();
     	char color=' ';
-    	if(nowStep%2==1)
+    	if(steps%2==1)
     		color='b';
-    	else if(nowStep%2==0)
+    	else if(steps%2==0)
     		color='w';
 
 		int x=getCoordinate()[0];
@@ -542,11 +550,10 @@ public class ChessBoard extends PApplet{
 				char ch_y=(char)((int)'a'+y-1);
 				char ch_rx=(char)((int)'a'+PreparedJumpPoints[0]-1);
 				char ch_ry=(char)((int)'a'+PreparedJumpPoints[1]-1);
-				if(nowStep%2==1)
+				if(steps%2==1)
 					information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
-				else if(nowStep%2==0)
+				else if(steps%2==0)
 					information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
-				nowStep++;
 				effect[0].loop();
 				effect[0].play();
 				
@@ -576,11 +583,10 @@ public class ChessBoard extends PApplet{
 			//add the information that imply does not remove stone
 			char ch_rx=(char)((int)'a'+size);
 			char ch_ry=(char)((int)'a'+size);
-			if(nowStep%2==1)
+			if(steps%2==1)
 				information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
-			else if(nowStep%2==0)
+			else if(steps%2==0)
 				information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
-			nowStep++;
 			effect[0].loop();
 			effect[0].play();
 				
@@ -596,6 +602,28 @@ public class ChessBoard extends PApplet{
 		
    }
    
+    private void DoAction2(){
+    	int x=getCoordinate()[0];
+		int y=getCoordinate()[1];
+		if(x>0 && y>0 && x<=size && y<=size){
+			int dialogButton = 0; 
+		    dialogButton = JOptionPane.showConfirmDialog (null, "Do you wish to continue the game at this new point? This will overwrite past moves.","Confirm", dialogButton);
+		    if(dialogButton == JOptionPane.YES_OPTION){
+		    	int len=information.length();
+		    	information=information.substring(0, len-11*UndoSteps);
+				try{
+					FileWriter fw = new FileWriter("record.txt");
+					fw.write(information + "\r\n");
+					fw.flush();
+					fw.close();
+				} catch (IOException e) {
+				}
+				UndoSteps=0;
+				initial();
+				loading();
+		    }
+		}
+    }
     
 	//use in the function "loading"
     private void placeChess(char color, int x, int y){
@@ -612,8 +640,6 @@ public class ChessBoard extends PApplet{
 				points[x][y]='w';
 			}
 		}
-		//if one pass, still add a step 
-		nowStep++;	
    }
     
 	//use in the function "loading"
@@ -626,9 +652,7 @@ public class ChessBoard extends PApplet{
     
     //load the record, and place chess from the first step to the last.
     private void loading(){
-    	
-    	nowStep=1;
-		
+    	int nowStep=1;
     	int begin=information.indexOf(';',1);
     	//System.out.println(begin);
     	if(begin!=-1)
@@ -645,6 +669,7 @@ public class ChessBoard extends PApplet{
     			else if(nowStep%2==0){
     				placeChess('w',x,y);
     			}
+    			nowStep++;
     			//System.out.println(x+" "+y);
     			begin+=11;
     		}
@@ -655,6 +680,7 @@ public class ChessBoard extends PApplet{
     
     private void DoActionForAI(AI ai,char color){
     	
+    	int steps=countSteps();
     	boolean wantResign=true;
     	int point[]=new int[4];
     	point=ai.AIaction(color);
@@ -679,11 +705,10 @@ public class ChessBoard extends PApplet{
 			char ch_y=(char)((int)'a'+y-1);
 			char ch_rx=(char)((int)'a'+rx-1);
 			char ch_ry=(char)((int)'a'+ry-1);
-			if(nowStep%2==1)
+			if(steps%2==1)
 				information=information.concat(";R["+ch_rx+ch_ry+"]"+"B["+ch_x+ch_y+"]");
-			else if(nowStep%2==0)
+			else if(steps%2==0)
 				information=information.concat(";R["+ch_rx+ch_ry+"]"+"W["+ch_x+ch_y+"]");
-			nowStep++;
 			effect[0].loop();
 			effect[0].play();
 			try{
@@ -703,42 +728,88 @@ public class ChessBoard extends PApplet{
     	canPlaceChess=true;
     }
     
+    //count the steps num by the record
+    private int countSteps(){
+    	
+    	int len=information.length();
+    	return (len-1)/11+1;
+    }
+    
+    private void loading(int n){
+    	int nowStep=1;
+    	int begin=information.indexOf(';',1);
+    	//System.out.println(begin);
+    	if(begin!=-1)
+    		for(int i=1;i<n;i++){
+    			int rx=information.charAt(begin+3)-'a'+1;
+    			int ry=information.charAt(begin+4)-'a'+1;
+    			Remove(rx,ry);
+    			
+    			int x=information.charAt(begin+8)-'a'+1;
+    			int y=information.charAt(begin+9)-'a'+1;
+    			if(nowStep%2==1){
+    				placeChess('b',x,y);
+    			}
+    			else if(nowStep%2==0){
+    				placeChess('w',x,y);
+    			}
+    			nowStep++;
+    			//System.out.println(x+" "+y);
+    			begin+=11;
+    		}
+    	//System.out.println(nowStep);
+    }
+    
     //button
-    public void undo(){
-    	if(nowStep>1){
+    public void back(){
+    	int steps=countSteps();
+    	isWhiteAIOn=false;
+    	isBlackAIOn=false;
+    	if(UndoSteps<steps-1 && steps>1){
     		char autoPassInfor=(char)((int)'a'+size);
-    		int len=information.length();
+    		int len=information.length()-11*UndoSteps;
     		if(information.charAt(len-2)==autoPassInfor && information.charAt(len-3)==autoPassInfor
     		   && information.charAt(len-7)==autoPassInfor && information.charAt(len-8)==autoPassInfor)
-    			information=information.substring(0,len-22);
-    		else information=information.substring(0,len-11);
-
-			try{
-				FileWriter fw = new FileWriter("record.txt");
-				fw.write(information + "\r\n");
-				fw.flush();
-				fw.close();
-				//System.out.println(information);
-			} catch (IOException e) {
-			}
-			
+    			UndoSteps+=2;
+    		else UndoSteps++;	
+    		//System.out.println(UndoSteps);
 			initial();
-			loading();
+			loading(steps-UndoSteps);
+
+    	}
+    }
+    
+    public void next(){
+    	int steps=countSteps();
+    	if(UndoSteps>0 && steps>1){
+    		char autoPassInfor=(char)((int)'a'+size);
+    		int len=information.length()-11*UndoSteps;
+    		if(UndoSteps>1 &&
+				information.charAt(len+3+11)==autoPassInfor && information.charAt(len+4+11)==autoPassInfor
+    		   && information.charAt(len+8+11)==autoPassInfor && information.charAt(len+9+11)==autoPassInfor)
+    			UndoSteps-=2;
+    		else UndoSteps--;
+    		//System.out.println(UndoSteps);
+			initial();
+			loading(steps-UndoSteps);
 
     	}
     }
     
     
     public void resign(){
-    	if(nowStep%2==1){
-    		JOptionPane.showMessageDialog(null,"White win by resignation.");
-    		winner='w';
-    		isEnding=true;
-    	}
-    	else if(nowStep%2==0){
-    		JOptionPane.showMessageDialog(null,"Black win by resignation.");
-    		winner='b';
-    		isEnding=true;
+    	int steps=countSteps();
+    	if(UndoSteps==0){
+	    	if(steps%2==1){
+	    		JOptionPane.showMessageDialog(null,"White win by resignation.");
+	    		winner='w';
+	    		isEnding=true;
+	    	}
+	    	else if(steps%2==0){
+	    		JOptionPane.showMessageDialog(null,"Black win by resignation.");
+	    		winner='b';
+	    		isEnding=true;
+	    	}
     	}
     }
     
@@ -749,6 +820,7 @@ public class ChessBoard extends PApplet{
     public void whiteCatOn(){
     	isWhiteAIOn=!isWhiteAIOn;
     }
+    
     
     //return the symmetry of the information
     public String symmetry(String inf){
@@ -839,26 +911,12 @@ public class ChessBoard extends PApplet{
 				fw.close();
 			} catch (IOException e) {
 			}
+			UndoSteps=0;
 			initial();
 			loading();
 	    }
     }
-    
-    public void test(){
-    	
-    	BetaCat ai=new BetaCat(size,this,this);
-    	Node root = new Node(null);
-    	//ai.setAllJumpMove(points,'w');
-    	/*ai.expandNode(root,points,'b');
-     	ai.setGoodSteps(points,root,'b');
-	   	 for(Node each : root.getChildren()){
-			 int[] a=each.getMove();
-			 for(int x:a)
-				 System.out.print(x+" ");
-			 System.out.print(each.isBreedStep+" "+each.isPerfectStep+" "+each.getProb());
-			 System.out.println();
-		 }*/
-    }
+
     
 
 }

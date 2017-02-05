@@ -33,9 +33,9 @@ public class AlphaCat extends AI{
 	private char[][] simulateBoard; //b:black; w:white; n:null
 	
 	
-	private int exStepNum=0;
+	/*private int exStepNum=0;
 	private int exStep[][]=new int[40][4];
-	private int exStepValue[]=new int[40];
+	private int exStepValue[]=new int[40];*/
 	
 
 
@@ -435,7 +435,7 @@ public class AlphaCat extends AI{
      
      
      //find the good step from experience
-     private void looking(char color){
+     /*private void looking(char color){
     	 
     	 char d=' ';
  		 if(color=='b')d='w';
@@ -521,7 +521,7 @@ public class AlphaCat extends AI{
 
 		} catch (IOException e) {
 		} 
-     }
+     }*/
      
 	 
 	 
@@ -540,7 +540,7 @@ public class AlphaCat extends AI{
 		
 		copyBoard();
 		
-		if(size==5){
+		/*if(size==5){
 			looking(color);
 			if(exStepNum>0){
 				for(int i=0;i<exStepNum;i++){
@@ -548,11 +548,11 @@ public class AlphaCat extends AI{
 						return exStep[i];
 				}
 			}
-		}
+		}*/
 		
 		setAllAllowedMove(0,color);
 		
-		boolean isRepeat=false;
+		/*boolean isRepeat=false;
 		for(int i=0; i<exStepNum ;i++){
 			isRepeat=false;
 			for(int j=0; j<allowedMoveNum[0] ;j++){
@@ -565,7 +565,7 @@ public class AlphaCat extends AI{
 			if(!isRepeat){
 				setAllowedMove(0,exStep[i][0],exStep[i][1],exStep[i][2],exStep[i][3]);
 			}
-		}
+		}*/
 		
     	for(int i=0; i<40;i++)
     		allowedMoveValue[i]=0;
@@ -579,7 +579,7 @@ public class AlphaCat extends AI{
     		boolean isInfection=false;
 			boolean valueInfection=false;
 			int InfectionStoneNum=0;
-			boolean exBadStep=false;
+			/*boolean exBadStep=false;
 			for(int j=0; j<exStepNum ;j++)
 				if(allowedMove[0][i][0]==exStep[j][0] && allowedMove[0][i][1]==exStep[j][1] &&
 				   allowedMove[0][i][2]==exStep[j][2] && allowedMove[0][i][3]==exStep[j][3] && exStepValue[j]<=-100){
@@ -590,7 +590,7 @@ public class AlphaCat extends AI{
 			if(exBadStep){
 				allowedMoveValue[i]=0;
 				continue;
-			}
+			}*/
 			
 			//the human-setting situation that change the allowedMoveValue
 			if(allowedMove[0][i][0]==size+1 && allowedMove[0][i][1]==size+1){
@@ -605,7 +605,7 @@ public class AlphaCat extends AI{
 			}
 			for(int j=1; j<=size ;j++)
 				for(int k=1; k<=size ;k++){
-					if(Math.abs(j-allowedMove[0][i][2])<=1 && +Math.abs(k-allowedMove[0][i][3])<=1 && simulateBoard[j][k]==d){
+					if(Math.abs(j-allowedMove[0][i][2])<=1 && Math.abs(k-allowedMove[0][i][3])<=1 && simulateBoard[j][k]==d){
 						InfectionStoneNum++;
 					}
 				}
