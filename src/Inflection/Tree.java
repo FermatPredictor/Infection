@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import processing.core.PApplet;
@@ -16,52 +17,65 @@ public class Tree extends AI{
 	int size;
 	private char[][] simulateBoard; //b:black; w:white; n:null
     int count=0;
+    private ZobristHash zTable;
+    
 
 	public Tree(int size, PApplet parent, ChessBoard board){
 		this.parent=parent;
 		this.board=board;
 		this.size=size;
 		simulateBoard=new char[size+1][size+1];
+		zTable=new ZobristHash(size);
 	}
+	
+	 private boolean isSymmetric(char board[][]){
+		 boolean isSymmetric=true;
+		 for(int i=2; i<=size ;i++)
+				for(int j=1; j<i ;j++){
+					if(board[i][j]!=board[j][i])
+						isSymmetric=false;
+				}
+		 return isSymmetric;				
+	 }
 	 
 	private int[][] setAllBreedMove(char[][] board, char color){
-		int [][] a = null;
+		int [][] a = new int [40][4];
 		int [][] temp = null;
 		int length = 0;
 		boolean b;
+		boolean isSymmetric=isSymmetric(board);
 		for (int i=1; i<=size; i++)
 			for (int j=1; j<=size; j++){
-				b = false;
-				if(board[i][j] == 'n'){
-					if(i > 1 && board[i-1][j] == color)
-						b = true;
-					else if(i < size && board[i+1][j] == color)
-						b = true;
-					else if(j > 1 && board[i][j-1] == color)
-						b = true;
-					else if(j < size && board[i][j+1] == color)
-						b = true;
-					if(b == true){
-						if(length > 0){
-							temp = a;
-							a = new int [length+1][4];
-							for (int k=0; k<length; k++)
-								for (int s=0; s<4; s++){
-									a[k][s] = temp[k][s];
-								}
+				if(!isSymmetric || j<=i){
+					b = false;
+					if(board[i][j] == 'n'){
+						if(i > 1 && board[i-1][j] == color)
+							b = true;
+						else if(i < size && board[i+1][j] == color)
+							b = true;
+						else if(j > 1 && board[i][j-1] == color)
+							b = true;
+						else if(j < size && board[i][j+1] == color)
+							b = true;
+						if(b == true){
+							a[length][0] = size+1;
+							a[length][1] = size+1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
 						}
-						else
-							a = new int [1][4];
-						a[length][0] = size+1;
-						a[length][1] = size+1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
 					}
 				}
 			}
 		
-		return a;
+		if(length > 0){
+			temp = new int [length][4];
+			for (int k=0; k<length; k++)
+				for (int s=0; s<4; s++){
+					temp[k][s] = a[k][s];
+				}
+		}		
+		return temp;
 			
 	}
 	
@@ -94,65 +108,68 @@ public class Tree extends AI{
 		int [][] a = new int [40][4];
 		int [][] temp = null;
 		int length = 0;
+		boolean isSymmetric=isSymmetric(board);
 		for(int i=1; i<=size ;i++)
 			for(int j=1; j<=size ;j++){
-				if(board[i][j]=='n' && valueJump(board,d,i,j)){
-					if(i > 2 && board[i-2][j] == color){
-						a[length][0] = i-2;
-						a[length][1] = j;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i > 1 && j < size && board[i-1][j+1] == color){
-						a[length][0] = i-1;
-						a[length][1] = j+1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(j < size-1 && board[i][j+2] == color){
-						a[length][0] = i;
-						a[length][1] = j+2;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i < size && j < size && board[i+1][j+1] == color){
-						a[length][0] = i+1;
-						a[length][1] = j+1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i < size-1 && board[i+2][j] == color){
-						a[length][0] = i+2;
-						a[length][1] = j;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i < size && j > 1 && board[i+1][j-1] == color){
-						a[length][0] = i+1;
-						a[length][1] = j-1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(j > 2 && board[i][j-2] == color){
-						a[length][0] = i;
-						a[length][1] = j-2;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-						
-					}
-					if(i > 1 && j > 1 && board[i-1][j-1] == color){
-						a[length][0] = i-1;
-						a[length][1] = j-1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
+				if(!isSymmetric || j<=i){
+					if(board[i][j]=='n' && valueJump(board,d,i,j)){
+						if(i > 2 && board[i-2][j] == color){
+							a[length][0] = i-2;
+							a[length][1] = j;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i > 1 && j < size && board[i-1][j+1] == color){
+							a[length][0] = i-1;
+							a[length][1] = j+1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(j < size-1 && board[i][j+2] == color){
+							a[length][0] = i;
+							a[length][1] = j+2;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i < size && j < size && board[i+1][j+1] == color){
+							a[length][0] = i+1;
+							a[length][1] = j+1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i < size-1 && board[i+2][j] == color){
+							a[length][0] = i+2;
+							a[length][1] = j;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i < size && j > 1 && board[i+1][j-1] == color){
+							a[length][0] = i+1;
+							a[length][1] = j-1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(j > 2 && board[i][j-2] == color){
+							a[length][0] = i;
+							a[length][1] = j-2;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+							
+						}
+						if(i > 1 && j > 1 && board[i-1][j-1] == color){
+							a[length][0] = i-1;
+							a[length][1] = j-1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
 					}
 				}
 			}
@@ -180,65 +197,68 @@ public class Tree extends AI{
 		int [][] a = new int [40][4];
 		int [][] temp = null;
 		int length = 0;
+		boolean isSymmetric=isSymmetric(board);
 		for(int i=1; i<=size ;i++)
 			for(int j=1; j<=size ;j++){
-				if(board[i][j]=='n' && !valueJump(board,d,i,j)){
-					if(i > 2 && board[i-2][j] == color){
-						a[length][0] = i-2;
-						a[length][1] = j;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i > 1 && j < size && board[i-1][j+1] == color){
-						a[length][0] = i-1;
-						a[length][1] = j+1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(j < size-1 && board[i][j+2] == color){
-						a[length][0] = i;
-						a[length][1] = j+2;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i < size && j < size && board[i+1][j+1] == color){
-						a[length][0] = i+1;
-						a[length][1] = j+1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i < size-1 && board[i+2][j] == color){
-						a[length][0] = i+2;
-						a[length][1] = j;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(i < size && j > 1 && board[i+1][j-1] == color){
-						a[length][0] = i+1;
-						a[length][1] = j-1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-					}
-					if(j > 2 && board[i][j-2] == color){
-						a[length][0] = i;
-						a[length][1] = j-2;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
-						
-					}
-					if(i > 1 && j > 1 && board[i-1][j-1] == color){
-						a[length][0] = i-1;
-						a[length][1] = j-1;
-						a[length][2] = i;
-						a[length][3] = j;
-						length++;
+				if(!isSymmetric || j<=i){
+					if(board[i][j]=='n' && !valueJump(board,d,i,j)){
+						if(i > 2 && board[i-2][j] == color){
+							a[length][0] = i-2;
+							a[length][1] = j;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i > 1 && j < size && board[i-1][j+1] == color){
+							a[length][0] = i-1;
+							a[length][1] = j+1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(j < size-1 && board[i][j+2] == color){
+							a[length][0] = i;
+							a[length][1] = j+2;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i < size && j < size && board[i+1][j+1] == color){
+							a[length][0] = i+1;
+							a[length][1] = j+1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i < size-1 && board[i+2][j] == color){
+							a[length][0] = i+2;
+							a[length][1] = j;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(i < size && j > 1 && board[i+1][j-1] == color){
+							a[length][0] = i+1;
+							a[length][1] = j-1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
+						if(j > 2 && board[i][j-2] == color){
+							a[length][0] = i;
+							a[length][1] = j-2;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+							
+						}
+						if(i > 1 && j > 1 && board[i-1][j-1] == color){
+							a[length][0] = i-1;
+							a[length][1] = j-1;
+							a[length][2] = i;
+							a[length][3] = j;
+							length++;
+						}
 					}
 				}
 			}
@@ -418,87 +438,211 @@ public class Tree extends AI{
       }
      
      //對於一個給定局面，該color走棋，回傳color所能到達的最佳結果
-     private int checkTheResult(char board[][], int height, char color){
-    	 
+     private int checkTheResult(char board[][], int height, char color, TreeNode node){
+  
+    	 count++;
     	 char[][] memoryBoard=new char[size+1][size+1];
     	 for(int i=1; i<=size ;i++)
  	  		for(int j=1; j<=size ;j++)
  	  			memoryBoard[i][j]=board[i][j];
     	 
-    	 if(simulateCheckEnding(board, color)){
-    		 if(color=='b')
-    			 return countWinNum(board,color);
-    		 else 
-    			 return -countWinNum(board,color);
-    	 }	 
-    	 else if(height==0){
-    		 if(color=='b')
-    			 return simpleCountWinNum(board);
-    		 else 
-    			 return -simpleCountWinNum(board);
-    	 }
-    		 
-    	 TreeNode root = new TreeNode(null);
-    	 int result=-9999;
-    	 expandNode(root,board,color);
-    	 for(TreeNode nodes:root.getChildren()){
-    		 copyBoard(memoryBoard);
-    		 int[] p=nodes.getMove();
-    		 simulateDoAction(p, color);
-    		 int x=-checkTheResult(simulateBoard,height-1,changeColor(color));
-    		 if(x>result)
-    			 result=x;
-    	 }
-    	 return result;
-     }
-     
-     private int ABcheckTheResult(char board[][], int height, char color, TreeNode node){
-         count++;
-    	 char[][] memoryBoard=new char[size+1][size+1];
-    	 for(int i=1; i<=size ;i++)
- 	  		for(int j=1; j<=size ;j++)
- 	  			memoryBoard[i][j]=board[i][j];
     	 int result;
     	 if(simulateCheckEnding(board, color)){
     		 if(color=='b')
     			 result=countWinNum(board,color);
     		 else 
     			 result=-countWinNum(board,color);
-    		 if(node.getParent()!=null && result<node.getParent().getResult())
-        		 node.getParent().setResult(result);
     		 node.setResult(-result);
-        	 return result;
+    		 return result;
     	 }	 
     	 else if(height==0){
     		 if(color=='b')
     			 result=simpleCountWinNum(board);
     		 else 
     			 result=-simpleCountWinNum(board);
-    		 if(node.getParent()!=null && result<node.getParent().getResult())
-        		 node.getParent().setResult(result);
     		 node.setResult(-result);
-        	 return result;
+    		 return result;
     	 }
     		 
+    	 TreeNode root = new TreeNode(null);
     	 result=-9999;
     	 expandNode(node,board,color);
-    	 for(TreeNode nodes:node.getChildren()){
+    	 for(TreeNode child:node.getChildren()){
     		 copyBoard(memoryBoard);
-    		 int[] p=nodes.getMove();
+    		 int[] p=child.getMove();
     		 simulateDoAction(p, color);
-    		 int x=-ABcheckTheResult(simulateBoard,height-1,changeColor(color),nodes);
-    		 if(x>result){
+    		 int x=-checkTheResult(simulateBoard,height-1,changeColor(color),child);
+    		 if(x>result)
     			 result=x;
-    			 TreeNode grandparentnode=nodes.getParent().getParent();
-    			 if(grandparentnode!=null && result > grandparentnode.getResult())
-    				 break;
-    		 }
     	 }
-    	 
-    	 if(node.getParent()!=null && result<node.getParent().getResult())
-    		 node.getParent().setResult(result);
     	 node.setResult(-result);
     	 return result;
+     }
+     
+     
+     private int alpha_betaCheckTheResult(TreeNode node, int alpha, int beta, char board[][], int height , boolean isMaxizingPlayer){
+     
+    	 count++;
+    	 char nextColor=changeColor(node.getColor());
+    	 char[][] memoryBoard=new char[size+1][size+1];
+    	 for(int i=1; i<=size ;i++)
+ 	  		for(int j=1; j<=size ;j++)
+ 	  			memoryBoard[i][j]=board[i][j];
+    	 int result;
+    	 if(simulateCheckEnding(board, nextColor)){
+    		 char MinizingPlayerColor=node.getColor();
+    		 if(isMaxizingPlayer)
+    			 MinizingPlayerColor=changeColor(node.getColor());		 
+    		 result=countWinNum(board, nextColor);
+             if(MinizingPlayerColor=='w')
+            	 result=-result;
+             if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+        	 return result;
+    	 }	 
+    	 else if(height==0){
+    		 char MinizingPlayerColor=node.getColor();
+    		 if(isMaxizingPlayer)
+    			 MinizingPlayerColor=changeColor(node.getColor());	 
+    		 result=simpleCountWinNum(board);
+    		 if(MinizingPlayerColor=='w')
+            	 result=-result;
+    		 if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+    		 return result;
+    	 }
+    		 
+    	 if(isMaxizingPlayer){
+    		 result=-9999;
+    		 expandNode(node,board,nextColor);
+    		 for(TreeNode child:node.getChildren()){
+    			 copyBoard(memoryBoard);
+        		 int[] p=child.getMove();
+        		 simulateDoAction(p, nextColor);
+    			 result=Math.max(result, alpha_betaCheckTheResult(child, alpha, beta, simulateBoard,height-1,false));
+    			 alpha= Math.max(alpha, result);
+    	         if(beta < alpha)
+    	        	 break;// (* β cut-off *)
+    		 }
+    		 if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+    		 return result;
+    	 }
+         else{
+        	 result=9999;
+        	 expandNode(node,board,nextColor);
+        	 for(TreeNode child:node.getChildren()){
+        		 copyBoard(memoryBoard);
+        		 int[] p=child.getMove();
+        		 simulateDoAction(p, nextColor);
+        		 result=Math.min(result, alpha_betaCheckTheResult(child, alpha, beta, simulateBoard,height-1,true));
+        		 beta= Math.min(beta, result);
+        		 if(beta < alpha)
+        			 break;// (* α cut-off *)
+        	 }
+        	 if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+    	     return result;
+         }
+     }
+     
+     //improved alpha-beta method
+     private int PVScheckTheResult(TreeNode node, int alpha, int beta, char board[][], int height , boolean isMaxizingPlayer){
+         
+    	 count++;
+    	 char nextColor=changeColor(node.getColor());
+    	 char[][] memoryBoard=new char[size+1][size+1];
+    	 for(int i=1; i<=size ;i++)
+ 	  		for(int j=1; j<=size ;j++)
+ 	  			memoryBoard[i][j]=board[i][j];
+    	 int result;
+    	 if(simulateCheckEnding(board, nextColor)){
+    		 char MinizingPlayerColor=node.getColor();
+    		 if(isMaxizingPlayer)
+    			 MinizingPlayerColor=changeColor(node.getColor());		 
+    		 result=countWinNum(board, nextColor);
+             if(MinizingPlayerColor=='w')
+            	 result=-result;
+             if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+        	 return result;
+    	 }	 
+    	 else if(height==0){
+    		 char MinizingPlayerColor=node.getColor();
+    		 if(isMaxizingPlayer)
+    			 MinizingPlayerColor=changeColor(node.getColor());	 
+    		 result=simpleCountWinNum(board);
+    		 if(MinizingPlayerColor=='w')
+            	 result=-result;
+    		 if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+    		 return result;
+    	 }
+    		 
+    	 if(isMaxizingPlayer){
+    		 result=-9999;
+    		 expandNode(node,board,nextColor);
+    		 for(TreeNode child:node.getChildren()){
+    			 copyBoard(memoryBoard);
+        		 simulateDoAction(child.getMove(), nextColor);
+        		 if(result!=-9999){
+        			 int eva=PVScheckTheResult(child, alpha, alpha, simulateBoard,height-1,false);
+        			 if(eva>alpha && eva<beta){
+        				 copyBoard(memoryBoard);
+                		 simulateDoAction(child.getMove(), nextColor);
+        				 result=Math.max(result, PVScheckTheResult(child, alpha, beta, simulateBoard,height-1,false));
+        			 }
+        			 else result=Math.max(result,eva);
+        		 }
+        		 else result=Math.max(result, PVScheckTheResult(child, alpha, beta, simulateBoard,height-1,false));
+    			 alpha= Math.max(alpha, result);
+    	         if(beta < alpha)
+    	        	 break;// (* β cut-off *)
+    		 }
+    		 if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+    		 return result;
+    	 }
+         else{
+        	 result=9999;
+        	 expandNode(node,board,nextColor);
+        	 for(TreeNode child:node.getChildren()){
+        		 copyBoard(memoryBoard);
+        		 simulateDoAction(child.getMove(), nextColor);
+        		 if(result!=9999){
+        			 int eva=PVScheckTheResult(child, beta, beta, simulateBoard,height-1,true);
+        			 if(eva>alpha && eva<beta){
+        				 copyBoard(memoryBoard);
+                		 simulateDoAction(child.getMove(), nextColor);
+        				 result=Math.min(result, PVScheckTheResult(child, alpha, beta, simulateBoard,height-1,true));
+        			 }
+        			 else result=Math.min(result,eva);
+        		 }
+        		 else result=Math.min(result, PVScheckTheResult(child, alpha, beta, simulateBoard,height-1,true));
+        		 beta= Math.min(beta, result);
+        		 if(beta < alpha)
+        			 break;// (* α cut-off *)
+        	 }
+        	 if(!isMaxizingPlayer)
+            	 node.setResult(result);
+             else
+            	 node.setResult(-result);
+    	     return result;
+         }
      }
 	 
 	 //this will decide a coordinate that AI want to play.
@@ -506,23 +650,20 @@ public class Tree extends AI{
          count=0;
     	 copyBoard();
     	 TreeNode root = new TreeNode(null);
+    	 root.setColor(changeColor(color));
     	 int point[]=new int[4];
     	 expandNode(root,simulateBoard,color);
     	 int result = -9999;
     	 TreeNode best = null;
     	 boolean endMode=countNullPointsNum(simulateBoard)<=4;
-    	 boolean highComplexity=root.getSubNodeNum()>=9;
-    	 if(!endMode){
-			 if(!highComplexity)
-				 result=ABcheckTheResult(simulateBoard, 7, color,root);
-			 else
-				 result=ABcheckTheResult(simulateBoard, 6, color,root);
-    	 }
+    	 if(!endMode)
+				 result=PVScheckTheResult(root,-24,24,simulateBoard,6,true);
     	 else
-    		 result=ABcheckTheResult(simulateBoard, 10, color,root);
+    		 result=PVScheckTheResult(root,-3,3,simulateBoard,12,true);
     	 
+    	 root.setColor('n');
     	 System.out.println("advice plays:");
-    	 root.printAdviceTree(4);
+    	 root.printAdviceTree(5);
     	 System.out.println();
     	 //print the result
     	 for(TreeNode each : root.getChildren()){
@@ -530,10 +671,21 @@ public class Tree extends AI{
     		 for(int x:a)
     			 System.out.print(x+" ");
     		 System.out.print(each.getResult());
+      		 /*for(TreeNode sub : each.getChildren()){
+    			 System.out.println();
+    			 System.out.print("  ");
+    			 int[] b=sub.getMove();
+        		 for(int y:b)
+        			 System.out.print(y+" ");
+    			 System.out.print(sub.getResult());
+    		 }*/
     		 System.out.println();
+    		 
     	 }
     	 System.out.println(count);
     	 System.out.println();
+
+
     	 
     	//random choose in the best choices
     	 int num = 0, rand_num;
@@ -554,6 +706,15 @@ public class Tree extends AI{
 			}
 		}
     	 point=best.getMove();
+    	 copyBoard();
+    	 if(isSymmetric(simulateBoard) && random.nextInt(2)<1){
+    		 int temp=point[0];
+    		 point[0]=point[1];
+    		 point[1]=temp;
+    		 temp=point[2];
+    		 point[2]=point[3];
+    		 point[3]=temp;
+    	 }
     	 return point;
     }
 

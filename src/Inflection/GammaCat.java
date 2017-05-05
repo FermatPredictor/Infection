@@ -560,14 +560,14 @@ public class GammaCat extends AI{
     		 for(int x:a)
     			 System.out.print(x+" ");
     		 System.out.print(each.getVisitNum()+" "+each.getProb());
-    		 /*for(GammaNode sub : each.getChildren()){
+    		 for(GammaNode sub : each.getChildren()){
     			 System.out.println();
     			 System.out.print("  ");
     			 int[] b=sub.getMove();
         		 for(int y:b)
         			 System.out.print(y+" ");
     			 System.out.print(sub.getVisitNum()+" "+sub.getProb());
-    		 }*/
+    		 }
     		 System.out.println();
     		 if(each.getVisitNum()> max){
     			 max = each.getVisitNum();

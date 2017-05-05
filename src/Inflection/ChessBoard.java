@@ -49,6 +49,7 @@ public class ChessBoard extends PApplet{
 	private GammaCat gammacat;
 	private Tree tree;
 	private Predictor predictor;
+	private AI ai;
 	public int lastMove[]=new int[2];
 	
 	private char winner;//b:black, w:white, d:draw
@@ -99,6 +100,7 @@ public class ChessBoard extends PApplet{
         gammacat=new GammaCat(size,this,this);
         tree=new Tree(size,this,this);
         predictor=new Predictor(size,this,this);
+        ai=alphacat;
 		
         UndoSteps=0;
 		initial();
@@ -123,6 +125,9 @@ public class ChessBoard extends PApplet{
 		cp5.addButton("resign").setLabel("Resign")
                                .setPosition(920,120)
                                .setSize(100, 50);
+		cp5.addButton("superMode").setLabel("SuperMode")
+                                  .setPosition(1030,120)
+                                  .setSize(100, 50);
 		
 		minim = new Minim(this);
 		effect[0]=minim.loadFile("Stone.wav");
@@ -134,12 +139,12 @@ public class ChessBoard extends PApplet{
 		if(!isEnding && UndoSteps==0){
 			if(isWhiteAIOn && steps%2==0){
 				isAITurn=true;
-				DoActionForAI(tree,'w');
+				DoActionForAI(ai,'w');
 				isAITurn=false;
 			}
 			else if(isBlackAIOn && steps%2==1){
 				isAITurn=true;
-				DoActionForAI(tree,'b');
+				DoActionForAI(ai,'b');
 				isAITurn=false;
 			}
 			if(mousePressed && canPlaceChess && !isAITurn ){
@@ -901,6 +906,7 @@ public class ChessBoard extends PApplet{
     public void newGame(){
     	
     	int dialogButton = 0; 
+    	ai=alphacat;
 	    dialogButton = JOptionPane.showConfirmDialog (null, "Do you want to play a new game?","Confirm", dialogButton);
 	    if(dialogButton == JOptionPane.YES_OPTION){
 	    	information=";";
@@ -915,6 +921,10 @@ public class ChessBoard extends PApplet{
 			initial();
 			loading();
 	    }
+    }
+    
+    public void superMode(){
+    	ai=tree;
     }
 
     

@@ -10,7 +10,7 @@ public class Main {
 		
 		MyWindow window=new MyWindow();
 		window.setName("Infection");
-		window.setIPAddress("127.0.0.1").setPort(8000).connect();
+		//window.setIPAddress("127.0.0.1").setPort(8000).connect();
 		window.setLocation(100, 50);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(width, height);
